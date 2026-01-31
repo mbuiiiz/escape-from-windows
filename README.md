@@ -77,3 +77,27 @@ cp .env.example .env
 - Inspiration sources or similar projects
 
 **Made with ❤️ at xhacks**
+# Hackathon Web Game Monorepo (Template)
+
+## Repo structure
+
+```
+/
+  frontend/        # Vite + React template (do not modify in this scaffolding task)
+  backend/         # Spring Boot (template only; no implementation yet)
+  docker-compose.yml
+  .env.example
+  README.md
+```
+
+## Notes
+
+- `frontend/` is an existing default Vite + React template.
+- `backend/` is scaffolding only (folders + placeholder files).
+- Docker is **optional** and must not be required for non-Docker workflows.
+
+## Team ownership rules (minimize merge conflicts)
+
+Backend ownership:
+- Dev A: `config/`, `controller/`, `dto/`, `model/`, `repo/`
+- Dev B: `service/`, `service/puzzle/`, `service/filesystem/`, `error/`
