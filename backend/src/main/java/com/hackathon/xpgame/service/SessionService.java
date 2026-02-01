@@ -1,17 +1,18 @@
 package com.hackathon.xpgame.service;
 
-import com.hackathon.xpgame.model.PlayerSession;
-import com.hackathon.xpgame.repo.InMemorySessionRepository;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import com.hackathon.xpgame.model.PlayerSession;
+import com.hackathon.xpgame.repo.SessionRepository;
 
 @Service
 public class SessionService {
 
     @Autowired
-    private InMemorySessionRepository sessionRepository;
+    private SessionRepository sessionRepository;
 
     public PlayerSession createSession(String playerName) {
         PlayerSession session = new PlayerSession();

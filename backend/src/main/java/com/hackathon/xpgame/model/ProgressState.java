@@ -3,6 +3,9 @@ package com.hackathon.xpgame.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public class ProgressState {
     private List<String> flags;
     private int currentStep;

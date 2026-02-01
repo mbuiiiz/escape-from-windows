@@ -2,7 +2,13 @@ package com.hackathon.xpgame.model;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
 public class PlayerSession {
+    
+    @Id
     private String sessionId;
     private String playerName;
     private ProgressState progress;
