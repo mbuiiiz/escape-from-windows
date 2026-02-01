@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "./HomePage.css";
 import Instructions from "./Instructions";
 import VideoPlayerTransition from "./VideoPlayerTransition";
 import explorer from "../assets/explorer.png";
 import close from "../assets/close.png";
 import VideoPlayerDesktopIcon from "./VideoPlayerDesktopIcon";
+import { useNavigate } from "react-router-dom";
 
 
 const HomePage: React.FC = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState<'home' | 'video' | 'instructions'>('home');
   const [shrinkWindow, setShrinkWindow] = useState(false);
   const [cursor, setCursor] = useState<{ x: number; y: number; show: boolean; click: boolean; step?: 'x' | 'icon' | 'expand' } | null>(null);
@@ -77,7 +78,7 @@ const HomePage: React.FC = () => {
   }, [step]);
 
   if (step === 'instructions') {
-    return <Instructions />;
+    return <Instructions onComplete={() => navigate("/xp", { replace: true })} />;
   }
 
   if (step === 'video') {
@@ -115,11 +116,11 @@ const HomePage: React.FC = () => {
             Escape From Windows
           </div>
 
-          <button className="btn btn-primary ie-button" onClick={handleStart}>
+          <button className="ie-button" onClick={handleStart}>
             Start
           </button>
 
-          <button className="btn btn-secondary ie-button">
+          <button className="ie-button">
             Continue
           </button>
         </div>
@@ -135,4 +136,3 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
-
