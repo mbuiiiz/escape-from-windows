@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import { useFileSystem, FileItem } from '@/contexts/FileSystemContext';
 import { useWindows } from '@/contexts/WindowContext';
+import { useSystem } from '@/contexts/SystemContext';
 import { ChevronLeft, ChevronRight, ChevronUp, Search, Folder } from 'lucide-react';
 interface MyComputerProps {
   windowId: string;
   props?: Record<string, unknown>;
 }
+const isVirusFile = (name: string) =>
+  name === 'do_not_click' || name === 'click_me_for_password';
+
 export function MyComputer({ windowId, props }: MyComputerProps) {
-  const { getFilesByPath, getFileById, usbUnlocked } = useFileSystem();
+  const { getFilesByPath, getFileById, usbUnlocked, antivirusEnabled, corruptHint } = useFileSystem();
   const { openWindow } = useWindows();
+  const { showPopup } = useSystem();
   const [currentPath, setCurrentPath] = useState((props?.path as string) || '/my-computer');
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const files = getFilesByPath(currentPath);
@@ -24,6 +29,28 @@ export function MyComputer({ windowId, props }: MyComputerProps) {
     setSelectedFile(null);
   };
   const handleFileDoubleClick = (file: FileItem) => {
+    if (isVirusFile(file.name)) {
+      if (antivirusEnabled) {
+        showPopup({
+          id: `av-blocked-${Date.now()}`,
+          type: 'info',
+          title: 'Anti-Virus',
+          message: 'Anti-virus has blocked a virus.',
+          buttons: [{ label: 'OK' }],
+        });
+        return;
+      }
+
+      corruptHint();
+      showPopup({
+        id: `virus-detected-${Date.now()}`,
+        type: 'error',
+        title: 'Malware detected',
+        message: 'A hint was corrupted.',
+        buttons: [{ label: 'OK' }],
+      });
+      return;
+    }
     if (file.type === 'folder' || file.type === 'drive') {
       if (file.type === 'drive' && file.path === '/my-computer/e' && !usbUnlocked) {
         openWindow({

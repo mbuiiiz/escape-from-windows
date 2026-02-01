@@ -23,11 +23,14 @@ interface FileSystemContextType {
   recycleBin: FileItem[];
   usbUnlocked: boolean;
   setUsbUnlocked: (unlocked: boolean) => void;
+  antivirusEnabled: boolean;
+  setAntivirusEnabled: (enabled: boolean) => void;
   getFilesByPath: (path: string) => FileItem[];
   getFileById: (id: string) => FileItem | undefined;
   restoreFromRecycleBin: (id: string) => void;
   permanentlyDelete: (id: string) => void;
-  applyGeneratedFiles: (generated: { path: string; content: string }[]) => void;
+  applyGeneratedFiles: (generated: { path: string; content: string; metadata?: FileItem['metadata'] }[]) => void;
+  corruptHint: () => void;
 }
 // Initial file system with puzzle content
 const initialFiles: FileItem[] = [
@@ -153,6 +156,15 @@ const initialFiles: FileItem[] = [
     parentPath: '/my-computer/c/Owner',
   },
   {
+    id: 'c-owner-downloads-do-not-click',
+    name: 'do_not_click',
+    type: 'file',
+    icon: '/xp-icons/prot.webp',
+    path: '/my-computer/c/Owner/Downloads/do_not_click',
+    parentPath: '/my-computer/c/Owner/Downloads',
+    content: 'This file looks suspicious.',
+  },
+  {
     id: 'c-owner-favourites',
     name: 'Favourites',
     type: 'folder',
@@ -167,6 +179,15 @@ const initialFiles: FileItem[] = [
     icon: '/xp-icons/notes.png',
     path: '/my-computer/c/Owner/My Documents/Notes',
     parentPath: '/my-computer/c/Owner/My Documents',
+  },
+  {
+    id: 'c-click-me-password',
+    name: 'click_me_for_password',
+    type: 'file',
+    icon: '/xp-icons/text.png',
+    path: '/my-computer/c/Owner/My Documents/Notes/click_me_for_password',
+    parentPath: '/my-computer/c/Owner/My Documents/Notes',
+    content: 'Totally not a trap.',
   },
   {
     id: 'c-todo',
@@ -386,6 +407,7 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
   const [files, setFiles] = useState<FileItem[]>(initialFiles);
   const [recycleBin, setRecycleBin] = useState<FileItem[]>(initialRecycleBin);
   const [usbUnlocked, setUsbUnlocked] = useState(false);
+  const [antivirusEnabled, setAntivirusEnabled] = useState(false);
   const getFilesByPath = (path: string): FileItem[] => {
     if (path === '/recycle-bin') {
       return recycleBin;
@@ -406,20 +428,42 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
     setRecycleBin(prev => prev.filter(f => f.id !== id));
   };
 
-  const applyGeneratedFiles = (generated: { path: string; content: string }[]) => {
-    const recycleEntries: Array<{ name: string; content: string }> = [];
-    const normalEntries: Array<{ path: string; content: string }> = [];
+  const corruptHint = () => {
+    const hintPaths = [
+      '/my-computer/c/Owner/My Documents/Notes/notes.txt',
+      '/my-computer/c/Owner/My Documents/Notes/syntax_help.txt',
+      '/my-computer/c/Owner/My Documents/Notes/passwords_draft.txt',
+      '/my-computer/c/Owner/My Documents/Notes/random_thoughts.txt',
+    ];
+
+    setFiles(prev => {
+      let corrupted = false;
+      const next = prev.map((file) => {
+        if (corrupted) return file;
+        if (hintPaths.includes(file.path) && (file.content ?? '') !== '') {
+          corrupted = true;
+          return { ...file, content: '' };
+        }
+        return file;
+      });
+      return next;
+    });
+  };
+
+  const applyGeneratedFiles = (generated: { path: string; content: string; metadata?: FileItem['metadata'] }[]) => {
+    const recycleEntries: Array<{ name: string; content: string; metadata?: FileItem['metadata'] }> = [];
+    const normalEntries: Array<{ path: string; content: string; metadata?: FileItem['metadata'] }> = [];
 
     for (const f of generated) {
       if (!f?.path) continue;
       if (f.path.startsWith("C:/Recycle Bin/")) {
         const name = f.path.split("/").pop() || "unknown.txt";
-        recycleEntries.push({ name, content: f.content ?? "" });
+        recycleEntries.push({ name, content: f.content ?? "", metadata: f.metadata });
         continue;
       }
       if (f.path.startsWith("C:/")) {
         const normalized = `/my-computer/c/Owner/${f.path.slice("C:/".length)}`;
-        normalEntries.push({ path: normalized, content: f.content ?? "" });
+        normalEntries.push({ path: normalized, content: f.content ?? "", metadata: f.metadata });
         continue;
       }
     }
@@ -429,7 +473,11 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
       for (const entry of normalEntries) {
         const existing = byPath.get(entry.path);
         if (existing) {
-          byPath.set(entry.path, { ...existing, content: entry.content });
+          byPath.set(entry.path, {
+            ...existing,
+            content: entry.content,
+            metadata: entry.metadata || existing.metadata,
+          });
           continue;
         }
 
@@ -445,6 +493,7 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
           path: entry.path,
           parentPath,
           content: entry.content,
+          metadata: entry.metadata,
         };
         byPath.set(entry.path, newItem);
       }
@@ -460,6 +509,7 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
         path: `/recycle-bin/${entry.name}`,
         parentPath: "/recycle-bin",
         content: entry.content,
+        metadata: entry.metadata,
         isDeleted: true,
       })));
     }
@@ -471,11 +521,14 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
       recycleBin,
       usbUnlocked,
       setUsbUnlocked,
+      antivirusEnabled,
+      setAntivirusEnabled,
       getFilesByPath,
       getFileById,
       restoreFromRecycleBin,
       permanentlyDelete,
       applyGeneratedFiles,
+      corruptHint,
     }}>
       {children}
     </FileSystemContext.Provider>
