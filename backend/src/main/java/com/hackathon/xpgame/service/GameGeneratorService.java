@@ -12,6 +12,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +21,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Service
 public class GameGeneratorService {
+
+    private static final Logger logger = LoggerFactory.getLogger(GameGeneratorService.class);
 
     private final ObjectMapper objectMapper;
 
@@ -38,6 +42,7 @@ public class GameGeneratorService {
         }
 
         String stdout = runCommand(command, scriptPath.getParent());
+        logger.info("Generator output:\n{}", stdout);
         JsonNode raw;
         try {
             raw = objectMapper.readTree(stdout);
