@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.dto;
 
 public class ActionRequest {
@@ -36,4 +32,3 @@ public class ActionRequest {
         this.data = data;
     }
 }
->>>>>>> backend/rest

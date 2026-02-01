@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.service.puzzle;
 
 import com.hackathon.xpgame.model.PuzzleFlag;
@@ -35,4 +31,3 @@ public class PuzzleRegistry {
 
     // TODO: Add more puzzle registry methods
 }
->>>>>>> backend/rest

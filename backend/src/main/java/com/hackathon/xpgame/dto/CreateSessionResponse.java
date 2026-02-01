@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.dto;
 
 import java.time.LocalDateTime;
@@ -29,4 +25,3 @@ public class CreateSessionResponse {
         this.createdAt = createdAt;
     }
 }
->>>>>>> backend/rest

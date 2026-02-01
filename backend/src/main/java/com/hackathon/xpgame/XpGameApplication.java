@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame;
 
 import org.springframework.boot.SpringApplication;
@@ -13,4 +9,3 @@ public class XpGameApplication {
         SpringApplication.run(XpGameApplication.class, args);
     }
 }
->>>>>>> backend/rest

@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.model;
 
 import java.util.ArrayList;
@@ -54,4 +50,3 @@ public class ProgressState {
         this.completedPuzzles.add(puzzleId);
     }
 }
->>>>>>> backend/rest

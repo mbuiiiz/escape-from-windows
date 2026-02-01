@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.model;
 
 public class PuzzleFlag {
@@ -52,4 +48,3 @@ public class PuzzleFlag {
         this.points = points;
     }
 }
->>>>>>> backend/rest

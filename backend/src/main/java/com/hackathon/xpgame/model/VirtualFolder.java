@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.model;
 
 import java.time.LocalDateTime;
@@ -87,4 +83,3 @@ public class VirtualFolder {
         this.modifiedAt = LocalDateTime.now();
     }
 }
->>>>>>> backend/rest

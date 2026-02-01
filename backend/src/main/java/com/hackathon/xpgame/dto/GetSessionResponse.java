@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.dto;
 
 import com.hackathon.xpgame.model.ProgressState;
@@ -39,4 +35,3 @@ public class GetSessionResponse {
         this.createdAt = createdAt;
     }
 }
->>>>>>> backend/rest

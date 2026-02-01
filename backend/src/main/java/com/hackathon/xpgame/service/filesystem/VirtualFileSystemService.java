@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.service.filesystem;
 
 import com.hackathon.xpgame.model.VirtualFile;
@@ -47,4 +43,3 @@ public class VirtualFileSystemService {
 
     // TODO: Add more filesystem operations
 }
->>>>>>> backend/rest

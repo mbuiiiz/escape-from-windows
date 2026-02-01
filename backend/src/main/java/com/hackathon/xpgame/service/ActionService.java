@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.service;
 
 import org.springframework.stereotype.Service;
@@ -14,7 +10,7 @@ public class ActionService {
         return sessionId != null && actionType != null && data != null;
     }
 
-    
+
     public Object getActionResult(String sessionId, String actionType) {
         // TODO: Implement action result retrieval
         return null;
@@ -22,4 +18,3 @@ public class ActionService {
 
     // TODO: Add more action processing methods
 }
->>>>>>> backend/rest

@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.model;
 
 import java.time.LocalDateTime;
@@ -11,7 +7,7 @@ import jakarta.persistence.Id;
 
 @Entity
 public class PlayerSession {
-    
+
     @Id
     private String sessionId;
     private String playerName;
@@ -66,4 +62,3 @@ public class PlayerSession {
         this.lastAccessed = lastAccessed;
     }
 }
->>>>>>> backend/rest

@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +26,11 @@ public class SessionController {
         // TODO: Implement session creation
         String playerName = request.getPlayerName();
         PlayerSession session = sessionService.createSession(playerName);
-       
+
         CreateSessionResponse response = new CreateSessionResponse();
         response.setSessionId(session.getSessionId());
-        response.setCreatedAt(session.getCreatedAt());           
-        
+        response.setCreatedAt(session.getCreatedAt());
+
         return response;
     }
 
@@ -43,13 +39,12 @@ public class SessionController {
         // TODO: Implement session retrieval
         PlayerSession fetchedSession = sessionService.getSession(sessionId)
                 .orElseThrow(() -> new RuntimeException("Session not found"));
-        
-                GetSessionResponse response = new GetSessionResponse();
+
+        GetSessionResponse response = new GetSessionResponse();
         response.setSessionId(fetchedSession.getSessionId());
         response.setProgress(fetchedSession.getProgress());
         response.setCreatedAt(fetchedSession.getCreatedAt());
-        
+
         return response;
     }
 }
->>>>>>> backend/rest

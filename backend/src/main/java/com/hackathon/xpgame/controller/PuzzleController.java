@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.controller;
 
 import com.hackathon.xpgame.dto.PuzzleAttemptRequest;
@@ -23,4 +19,3 @@ public class PuzzleController {
         return new PuzzleAttemptResponse();
     }
 }
->>>>>>> backend/rest

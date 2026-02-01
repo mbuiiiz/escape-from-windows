@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.service;
 
 import java.util.Optional;
@@ -34,4 +30,3 @@ public class SessionService {
 
     // TODO: Add more session management methods
 }
->>>>>>> backend/rest

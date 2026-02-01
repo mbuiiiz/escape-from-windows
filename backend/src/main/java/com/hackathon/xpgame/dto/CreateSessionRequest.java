@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.dto;
 
 public class CreateSessionRequest {
@@ -18,4 +14,3 @@ public class CreateSessionRequest {
         this.playerName = playerName;
     }
 }
->>>>>>> backend/rest

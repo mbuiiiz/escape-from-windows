@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.model;
 
 import java.time.LocalDateTime;
@@ -88,4 +84,3 @@ public class VirtualFile {
         isEncrypted = encrypted;
     }
 }
->>>>>>> backend/rest

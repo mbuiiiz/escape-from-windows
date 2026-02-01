@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement
-
-=======
 package com.hackathon.xpgame.dto;
 
 public class PuzzleAttemptResponse {
@@ -36,4 +32,3 @@ public class PuzzleAttemptResponse {
         this.flagUnlocked = flagUnlocked;
     }
 }
->>>>>>> backend/rest

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -22,19 +21,5 @@ const App = () => (
         </TooltipProvider>
     </QueryClientProvider>
 );
-=======
-import React from "react";
-import { BrowserRouter } from "react-router-dom";
-import { AppRoutes } from "./router/routes";
-import "./styles/xp.css";
-
-function App() {
-    return (
-        <BrowserRouter>
-            <AppRoutes />
-        </BrowserRouter>
-    );
-}
->>>>>>> backend/rest
 
 export default App;
