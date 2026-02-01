@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
 interface NotepadPlusPlusProps {
   windowId: string;
   props?: Record<string, unknown>;
@@ -50,10 +51,25 @@ fi
     language: 'bash',
   },
 ];
+
+const STORAGE_KEY = "notepadpp-tabs";
+
 export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
+
   const initialContent = props?.content as string;
   const fileName = props?.fileName as string;
   const [tabs, setTabs] = useState<Tab[]>(() => {
+    const stored = sessionStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as Tab[];
+        return parsed;
+      } catch(e) {
+        // Ignore parse errors
+        console.error('Failed to parse saved tabs:', e);
+      }
+    }
+
     if (initialContent && fileName) {
       return [
         {
@@ -69,6 +85,12 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
   });
   const [activeTab, setActiveTab] = useState(tabs[0].id);
   const activeTabData = tabs.find((t) => t.id === activeTab) || tabs[0];
+
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(tabs));
+    console.log('saved tabs to sessionStorage');
+  }, [tabs]);
+  
   const handleContentChange = (newContent: string) => {
     setTabs((prev) =>
       prev.map((t) => (t.id === activeTab ? { ...t, content: newContent } : t))
@@ -138,13 +160,14 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
         {/* Code Editor */}
         <div className="flex-1 relative">
           <textarea
-            className="absolute inset-0 w-full h-full p-1 font-mono text-xs leading-5 resize-none outline-none bg-transparent text-transparent caret-black"
+            className="w-full h-full p-1 font-mono text-xs leading-5 resize-none outline-none bg-transparent caret-black"
             value={activeTabData.content}
             onChange={(e) => handleContentChange(e.target.value)}
             spellCheck={false}
+            style={{ caretColor: 'black' }}
           />
           <pre
-            className="absolute inset-0 w-full h-full p-1 font-mono text-xs leading-5 pointer-events-none overflow-auto"
+            className="w-full h-full p-1 font-mono text-xs leading-5 pointer-events-none overflow-auto"
             dangerouslySetInnerHTML={{
               __html: highlightSyntax(activeTabData.content, activeTabData.language),
             }}
