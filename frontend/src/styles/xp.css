@@ -1,0 +1,80 @@
+/* Windows XP Theme Styles */
+.xp-shell {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: #008080;
+}
+
+.desktop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 40px;
+    background: #008080;
+}
+
+.taskbar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, #245cdf, #1941a5);
+    border-top: 1px solid #0831d9;
+    display: flex;
+    align-items: center;
+}
+
+.start-button {
+    background: linear-gradient(to bottom, #3de737, #3de737);
+    border: 1px outset #3de737;
+    border-radius: 3px;
+    padding: 4px 8px;
+    margin: 4px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.window-frame {
+    position: absolute;
+    background: #ece9d8;
+    border: 2px outset #ece9d8;
+    min-width: 200px;
+    min-height: 100px;
+}
+
+.title-bar {
+    background: linear-gradient(to bottom, #0a246a, #0a246a);
+    color: white;
+    padding: 4px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+}
+
+.window-content {
+    padding: 8px;
+}
+
+.desktop-icons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+}
+
+.icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 64px;
+    color: white;
+    text-shadow: 1px 1px 0px black;
+    cursor: pointer;
+}
+
+/* TODO: Add more XP-specific styling */
