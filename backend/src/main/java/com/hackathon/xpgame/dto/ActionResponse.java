@@ -1,19 +1,26 @@
 package com.hackathon.xpgame.dto;
 
 public class ActionResponse {
-    private boolean success;
+    private boolean status;
     private String message;
     private Object data;
 
     public ActionResponse() {
     }
 
-    public boolean isSuccess() {
-        return success;
+    public ActionResponse(boolean status, String message, Object data)
+    {
+        this.status = status;
+        this.message = message;
+        this.data = data;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
+    public boolean isSuccess() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 
     public String getMessage() {
