@@ -6,14 +6,14 @@ Frontend pages and static assets - minimal conflicts
 
 - [x] Landing page
 - [x] merge landing page
-- [ ] ending page
+- [x] ending page
 
 ## Person 2 - UI Components (Mike)
 
 Desktop & Window interactions - src/components/xp/
 
-- [ ] Right click properties (ContextMenu.tsx, FileProperties.tsx)
-- [ ] My computer Navbar spacing (MyComputer.tsx)
+- [x] Right click properties (ContextMenu.tsx, FileProperties.tsx)
+- [x] My computer Navbar spacing (MyComputer.tsx)
 
 ## Person 3 - Code Editors (Jimmy)
 
@@ -26,7 +26,7 @@ Application components - src/components/apps/
 
 USB, puzzles, and backend integration - contexts/ and backend/
 
-- [ ] usb unlock.exe not working (FileSystemContext.tsx, backend)
+- [x] usb unlock.exe not working (FileSystemContext.tsx, backend)
 - [x] add password for usb popup window (SystemPopup.tsx, contexts)
 - [x] add password limits if out of attempts -> use code instead (contexts/SystemContext.tsx)
 - [x] virus and anti-virus (backend, service layer)

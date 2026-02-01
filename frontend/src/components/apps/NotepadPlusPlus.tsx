@@ -75,7 +75,8 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
   const activeTabData = tabs.find((t) => t.id === activeTab) || tabs[0];
   const [showFileMenu, setShowFileMenu] = useState(false);
   const { showPopup } = useSystem();
-  const { updateFileContent } = useFileSystem();
+  const { updateFileContent, setUsbUnlocked } = useFileSystem();
+  const [runOutput, setRunOutput] = useState<string | null>(null);
   const handleContentChange = (newContent: string) => {
     setTabs((prev) =>
       prev.map((t) => (t.id === activeTab ? { ...t, content: newContent } : t))
@@ -121,7 +122,55 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
         <span className="cursor-pointer hover:underline">View</span>
         <span className="cursor-pointer hover:underline">Encoding</span>
         <span className="cursor-pointer hover:underline">Language</span>
-        <span className="cursor-pointer hover:underline">Run</span>
+        <span
+          className="cursor-pointer hover:underline"
+          onClick={() => {
+            const ts = new Date().toLocaleTimeString();
+            const content = activeTabData.content.toLowerCase();
+            const required = ['inspect', 'remove', 'decode', 'rebuild', 'reverse', 'assemble'];
+            const matchesOrder = () => {
+              let idx = 0;
+              for (const token of required) {
+                const next = content.indexOf(token, idx);
+                if (next === -1) return false;
+                idx = next + token.length;
+              }
+              return true;
+            };
+
+            const isUsbCracker =
+              (filePath && filePath.includes('/Projects/usb_cracker/decrypt.js')) ||
+              activeTabData.name.toLowerCase() === 'decrypt.js';
+
+            if (isUsbCracker && matchesOrder()) {
+              setUsbUnlocked(true);
+              setRunOutput(
+                `> Running ${activeTabData.name}\nExecuted at ${ts}\n\nUSB unlocked via cracking.`
+              );
+              showPopup({
+                id: `run-${Date.now()}`,
+                type: 'info',
+                title: 'Run',
+                message: 'USB unlocked via cracking.',
+                buttons: [{ label: 'OK' }],
+              });
+              return;
+            }
+
+            setRunOutput(
+              `> Running ${activeTabData.name}\nExecuted at ${ts}\n\n(Output is simulated in this build.)`
+            );
+            showPopup({
+              id: `run-${Date.now()}`,
+              type: 'info',
+              title: 'Run',
+              message: `${activeTabData.name} executed.`,
+              buttons: [{ label: 'OK' }],
+            });
+          }}
+        >
+          Run
+        </span>
         <span className="cursor-pointer hover:underline">Plugins</span>
       </div>
       {showFileMenu && (
@@ -211,6 +260,11 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
         </span>
         <span>{activeTabData.language.toUpperCase()}</span>
       </div>
+      {runOutput && (
+        <div className="border-t border-gray-300 bg-white text-xs p-2 font-mono whitespace-pre-wrap">
+          {runOutput}
+        </div>
+      )}
     </div>
   );
 }
