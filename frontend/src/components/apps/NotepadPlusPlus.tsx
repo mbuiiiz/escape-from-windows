@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSystem } from '@/contexts/SystemContext';
+import { useFileSystem } from '@/contexts/FileSystemContext';
+
 interface NotepadPlusPlusProps {
   windowId: string;
   props?: Record<string, unknown>;
@@ -50,10 +53,27 @@ fi
     language: 'bash',
   },
 ];
+
+const STORAGE_KEY = "notepadpp-tabs";
+
 export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
+
   const initialContent = props?.content as string;
   const fileName = props?.fileName as string;
+  const filePath = props?.filePath as string | undefined;
+  const readOnly = (props?.readOnly as boolean) || false;
   const [tabs, setTabs] = useState<Tab[]>(() => {
+    const stored = sessionStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored) as Tab[];
+        return parsed;
+      } catch(e) {
+        // Ignore parse errors
+        console.error('Failed to parse saved tabs:', e);
+      }
+    }
+
     if (initialContent && fileName) {
       return [
         {
@@ -69,6 +89,16 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
   });
   const [activeTab, setActiveTab] = useState(tabs[0].id);
   const activeTabData = tabs.find((t) => t.id === activeTab) || tabs[0];
+  const [showFileMenu, setShowFileMenu] = useState(false);
+  const { showPopup } = useSystem();
+  const { updateFileContent, setUsbUnlocked } = useFileSystem();
+  const [runOutput, setRunOutput] = useState<string | null>(null);
+
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(tabs));
+    console.log('saved tabs to sessionStorage');
+  }, [tabs]);
+  
   const handleContentChange = (newContent: string) => {
     setTabs((prev) =>
       prev.map((t) => (t.id === activeTab ? { ...t, content: newContent } : t))
@@ -100,18 +130,111 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
       .join('\n');
   };
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white relative">
       {/* Menu Bar */}
       <div className="flex items-center gap-4 px-2 py-1 bg-gray-100 border-b border-gray-300 text-xs">
-        <span className="cursor-pointer hover:underline">File</span>
+        <span
+          className="cursor-pointer hover:underline"
+          onClick={() => setShowFileMenu((v) => !v)}
+        >
+          File
+        </span>
         <span className="cursor-pointer hover:underline">Edit</span>
         <span className="cursor-pointer hover:underline">Search</span>
         <span className="cursor-pointer hover:underline">View</span>
         <span className="cursor-pointer hover:underline">Encoding</span>
         <span className="cursor-pointer hover:underline">Language</span>
-        <span className="cursor-pointer hover:underline">Run</span>
+        <span
+          className="cursor-pointer hover:underline"
+          onClick={() => {
+            const ts = new Date().toLocaleTimeString();
+            const content = activeTabData.content.toLowerCase();
+            const required = ['inspect', 'remove', 'decode', 'rebuild', 'reverse', 'assemble'];
+            const matchesOrder = () => {
+              let idx = 0;
+              for (const token of required) {
+                const next = content.indexOf(token, idx);
+                if (next === -1) return false;
+                idx = next + token.length;
+              }
+              return true;
+            };
+
+            const isUsbCracker =
+              (filePath && filePath.includes('/Projects/usb_cracker/decrypt.js')) ||
+              activeTabData.name.toLowerCase() === 'decrypt.js';
+
+            if (isUsbCracker && matchesOrder()) {
+              setUsbUnlocked(true);
+              setRunOutput(
+                `> Running ${activeTabData.name}\nExecuted at ${ts}\n\nUSB unlocked via cracking.`
+              );
+              showPopup({
+                id: `run-${Date.now()}`,
+                type: 'info',
+                title: 'Run',
+                message: 'USB unlocked via cracking.',
+                buttons: [{ label: 'OK' }],
+              });
+              return;
+            }
+
+            setRunOutput(
+              `> Running ${activeTabData.name}\nExecuted at ${ts}\n\n(Output is simulated in this build.)`
+            );
+            showPopup({
+              id: `run-${Date.now()}`,
+              type: 'info',
+              title: 'Run',
+              message: `${activeTabData.name} executed.`,
+              buttons: [{ label: 'OK' }],
+            });
+          }}
+        >
+          Run
+        </span>
         <span className="cursor-pointer hover:underline">Plugins</span>
       </div>
+      {showFileMenu && (
+        <div className="absolute left-2 top-7 z-10 bg-white border border-gray-300 text-xs shadow-md">
+          <div
+            className="px-3 py-1 hover:bg-blue-100 cursor-pointer"
+            onClick={() => {
+              setShowFileMenu(false);
+              if (!readOnly && filePath) {
+                updateFileContent(filePath, activeTabData.content);
+              }
+              showPopup({
+                id: `save-${Date.now()}`,
+                type: 'info',
+                title: 'Save',
+                message: readOnly ? 'This file is read-only.' : `${activeTabData.name} saved.`,
+                buttons: [{ label: 'OK' }],
+              });
+            }}
+          >
+            Save
+          </div>
+          <div
+            className="px-3 py-1 hover:bg-blue-100 cursor-pointer"
+            onClick={() => {
+              setShowFileMenu(false);
+              if (!readOnly && filePath) {
+                updateFileContent(filePath, activeTabData.content);
+              }
+              showPopup({
+                id: `saveas-${Date.now()}`,
+                type: 'info',
+                title: 'Save As',
+                message: readOnly ? 'This file is read-only.' : `${activeTabData.name} saved.`,
+                buttons: [{ label: 'OK' }],
+              });
+            }}
+          >
+            Save As...
+          </div>
+        </div>
+      )}
       {/* Tabs */}
       <div className="xp-notepadpp-tabs">
         {tabs.map((tab) => (
@@ -138,13 +261,14 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
         {/* Code Editor */}
         <div className="flex-1 relative">
           <textarea
-            className="absolute inset-0 w-full h-full p-1 font-mono text-xs leading-5 resize-none outline-none bg-transparent text-transparent caret-black"
+            className="w-full h-full p-1 font-mono text-xs leading-5 resize-none outline-none bg-transparent caret-black"
             value={activeTabData.content}
             onChange={(e) => handleContentChange(e.target.value)}
             spellCheck={false}
+            style={{ caretColor: 'black' }}
           />
           <pre
-            className="absolute inset-0 w-full h-full p-1 font-mono text-xs leading-5 pointer-events-none overflow-auto"
+            className="w-full h-full p-1 font-mono text-xs leading-5 pointer-events-none overflow-auto"
             dangerouslySetInnerHTML={{
               __html: highlightSyntax(activeTabData.content, activeTabData.language),
             }}
@@ -159,6 +283,11 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
         </span>
         <span>{activeTabData.language.toUpperCase()}</span>
       </div>
+      {runOutput && (
+        <div className="border-t border-gray-300 bg-white text-xs p-2 font-mono whitespace-pre-wrap">
+          {runOutput}
+        </div>
+      )}
     </div>
   );
 }

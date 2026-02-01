@@ -1,0 +1,37 @@
+
+.ending1-container {
+  margin-top: 100px;
+  background: linear-gradient(135deg, #3a6ea5 0%, #b4d1f7 100%);
+  border-radius: 12px;
+  padding: 40px 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 1.5px 0 #fff inset;
+  border: 2.5px solid #205081;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 2.5s cubic-bezier(0.23, 1, 0.32, 1), transform 2.5s cubic-bezier(0.23, 1, 0.32, 1);
+  font-family: 'Tahoma', 'Geneva', 'Verdana', sans-serif;
+  color: #222;
+}
+
+.ending1-container.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ending1-container h1 {
+  color: #205081;
+  font-size: 2.8rem;
+  font-weight: bold;
+  text-shadow: 1.5px 1.5px 0 #fff, 0 2.5px 8px #20508144;
+  margin-bottom: 24px;
+}
+
+.ending1-container p.lead {
+  font-size: 1.25rem;
+  color: #222;
+  background: rgba(255,255,255,0.7);
+  border-radius: 8px;
+  padding: 16px 12px;
+  box-shadow: 0 1px 0 #fff inset;
+  margin-bottom: 0;
+}

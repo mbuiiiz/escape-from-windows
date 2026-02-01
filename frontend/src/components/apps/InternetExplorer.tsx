@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, RotateCw, Home, Star, History } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, RotateCw, Home, History } from 'lucide-react';
 import { YahooMail } from './YahooMail.tsx';
+import { useWindows } from '@/contexts/WindowContext';
+import { EscapeFromWindowsLanding } from './EscapeFromWindowsLanding';
+import txtIcon from '@/assets/txt-icon.jpg';
+import { instructionsFileName, instructionsText } from '@/story/instructionsText';
+import { apiClient } from '@/api/client';
+import { useFileSystem } from '@/contexts/FileSystemContext';
+import { useSystem } from '@/contexts/SystemContext';
 interface InternetExplorerProps {
   windowId: string;
   props?: Record<string, unknown>;
@@ -13,9 +20,131 @@ const browsingHistory = [
   { url: 'http://www.security-updates.com/patches', title: 'Security Patches', date: '03/11/2005 02:30 PM' },
 ];
 export function InternetExplorer({ windowId, props }: InternetExplorerProps) {
-  const [currentUrl, setCurrentUrl] = useState('http://mail.yahoo.com');
+  const { closeWindow, openWindow } = useWindows();
+  const { applyGeneratedFiles } = useFileSystem();
+  const { showPopup } = useSystem();
+  const homeUrl = 'http://escape-from-windows.local';
+  const initialUrl = (props?.initialUrl as string) || homeUrl;
+  const tabTitle = (props?.tabTitle as string) || 'Internet Explorer';
+
+  const [currentUrl, setCurrentUrl] = useState(initialUrl);
   const [showHistory, setShowHistory] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
+  const [hasGame, setHasGame] = useState(false);
+
+  const openInstructions = () => {
+    openWindow({
+      id: 'instructions-notepad',
+      title: `${instructionsFileName} - Notepad`,
+      icon: txtIcon,
+      component: 'Notepad',
+      x: 140,
+      y: 90,
+      width: 640,
+      height: 440,
+      props: {
+        fileName: instructionsFileName,
+        content: instructionsText,
+        readOnly: true,
+      },
+    });
+  };
+
+  const handleStart = async () => {
+    if (isStarting) return;
+    setIsStarting(true);
+    try {
+      const res = await apiClient.request<{
+        sessionId: string;
+        game?: { files?: Array<{ path: string; content: string; metadata?: { created: string; modified: string; size: string; signature?: string; author?: string } }> };
+      }>('/api/sessions', {
+        method: 'POST',
+        body: JSON.stringify({ playerName: 'Player' }),
+      });
+
+      if (res?.sessionId) {
+        localStorage.setItem('xpgame.sessionId', res.sessionId);
+      }
+
+      const files = res?.game?.files;
+      if (Array.isArray(files)) {
+        applyGeneratedFiles(files);
+      }
+
+      setHasGame(true);
+      closeWindow(windowId);
+      openInstructions();
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Unknown error';
+      showPopup({
+        id: `start-error-${Date.now()}`,
+        type: 'error',
+        title: 'Could not start game',
+        message:
+          message.includes('Failed to fetch') || message.includes('Network error')
+            ? 'Backend not reachable. Start the backend on http://localhost:8080 and try again.'
+            : message,
+        buttons: [{ label: 'OK' }],
+      });
+      setIsStarting(false);
+    }
+  };
+
+  const handleContinue = () => {
+    closeWindow(windowId);
+    openInstructions();
+  };
+
+  const handleNewGame = async () => {
+    localStorage.removeItem('xpgame.sessionId');
+    await handleStart();
+  };
+
+  useEffect(() => {
+    const sessionId = localStorage.getItem('xpgame.sessionId');
+    if (!sessionId) {
+      setHasGame(false);
+      return;
+    }
+    let cancelled = false;
+    const loadGame = async () => {
+      setIsStarting(true);
+      try {
+        const res = await apiClient.request<{
+          sessionId: string;
+          game?: { files?: Array<{ path: string; content: string; metadata?: { created: string; modified: string; size: string; signature?: string; author?: string } }> };
+        }>(`/api/sessions/${sessionId}/game`);
+        const files = res?.game?.files;
+        if (!cancelled && Array.isArray(files)) {
+          applyGeneratedFiles(files);
+          setHasGame(true);
+        } else if (!cancelled) {
+          setHasGame(false);
+        }
+      } catch {
+        if (!cancelled) setHasGame(false);
+      } finally {
+        if (!cancelled) setIsStarting(false);
+      }
+    };
+    loadGame();
+    return () => {
+      cancelled = true;
+    };
+  }, [applyGeneratedFiles]);
+
   const renderPage = () => {
+    if (currentUrl.includes('escape-from-windows')) {
+      return (
+        <EscapeFromWindowsLanding
+          onStart={handleStart}
+          onContinue={handleContinue}
+          onNewGame={handleNewGame}
+          hasGame={hasGame}
+          isStarting={isStarting}
+        />
+      );
+    }
     if (currentUrl.includes('yahoo')) {
       return <YahooMail />;
     }
@@ -94,7 +223,7 @@ export function InternetExplorer({ windowId, props }: InternetExplorerProps) {
         <button className="xp-ie-nav-btn">
           <RotateCw size={14} />
         </button>
-        <button className="xp-ie-nav-btn" onClick={() => setCurrentUrl('http://www.google.com')}>
+        <button className="xp-ie-nav-btn" onClick={() => setCurrentUrl(homeUrl)}>
           <Home size={14} />
         </button>
         <div className="xp-ie-address">
@@ -109,6 +238,15 @@ export function InternetExplorer({ windowId, props }: InternetExplorerProps) {
         <button className="xp-ie-nav-btn" onClick={() => setShowHistory(!showHistory)}>
           <History size={14} />
         </button>
+      </div>
+      {/* Tabs */}
+      <div className="flex items-end bg-[hsl(210_15%_92%)] border-b border-gray-300 px-2 h-7">
+        <div className="px-3 py-1 bg-white border border-b-0 border-gray-300 text-xs rounded-t">
+          {tabTitle}
+        </div>
+        <div className="ml-2 text-[10px] text-gray-600 self-center truncate">
+          {currentUrl}
+        </div>
       </div>
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">

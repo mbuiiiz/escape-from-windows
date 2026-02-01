@@ -10,6 +10,8 @@ import { CommandPrompt } from '@/components/apps/CommandPrompt';
 import { SystemRestore } from '@/components/apps/SystemRestore';
 import { DateTimeSettings } from '@/components/apps/DateTimeSettings';
 import { FileProperties } from '@/components/apps/FileProperties';
+import { UsbPasswordPrompt } from '@/components/apps/UsbPasswordPrompt';
+import { AntiVirus } from '@/components/apps/AntiVirus';
 const componentMap: Record<string, React.ComponentType<{ windowId: string; props?: Record<string, unknown> }>> = {
   MyComputer,
   RecycleBin,
@@ -20,6 +22,8 @@ const componentMap: Record<string, React.ComponentType<{ windowId: string; props
   SystemRestore,
   DateTimeSettings,
   FileProperties,
+  UsbPasswordPrompt,
+  AntiVirus,
 };
 export function WindowManager() {
   const { windows, activeWindowId } = useWindows();

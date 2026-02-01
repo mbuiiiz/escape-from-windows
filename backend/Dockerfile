@@ -1,13 +1,7 @@
-<<<<<<< HEAD
-# Docker is optional and not required.
-# TODO: add java image
-# TODO: build with maven
-
-=======
 FROM amazoncorretto:17-alpine
 
-# Install Maven
-RUN apk add --no-cache maven
+# Install Maven + Python (generator)
+RUN apk add --no-cache maven python3
 
 WORKDIR /app
 
@@ -23,4 +17,3 @@ COPY src ./src
 EXPOSE 8080
 
 CMD ["mvn", "spring-boot:run"]
->>>>>>> backend/rest

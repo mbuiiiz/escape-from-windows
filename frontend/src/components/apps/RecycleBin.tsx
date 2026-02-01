@@ -11,7 +11,22 @@ export function RecycleBin({ windowId, props }: RecycleBinProps) {
   const { openWindow } = useWindows();
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const handleFileDoubleClick = (file: FileItem) => {
-    // Open file in Notepad to view
+    if (file.name.endsWith('.js') || file.name.endsWith('.sh')) {
+      openWindow({
+        id: `notepadpp-${file.id}`,
+        title: `${file.name} - Notepad++`,
+        icon: '/xp-icons/notepadpp.png',
+        component: 'NotepadPlusPlus',
+        x: 150,
+        y: 100,
+        width: 800,
+        height: 500,
+        props: { content: file.content, fileName: file.name, filePath: file.path, readOnly: true },
+      });
+      return;
+    }
+
+    // Open other files in Notepad to view
     openWindow({
       id: `notepad-${file.id}`,
       title: `${file.name} - Notepad`,
@@ -21,7 +36,7 @@ export function RecycleBin({ windowId, props }: RecycleBinProps) {
       y: 100,
       width: 600,
       height: 400,
-      props: { content: file.content, fileName: file.name, readOnly: true },
+      props: { content: file.content, fileName: file.name, filePath: file.path, readOnly: true },
     });
   };
   const handleRestore = () => {

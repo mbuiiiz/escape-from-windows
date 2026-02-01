@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import { useFileSystem, FileItem } from '@/contexts/FileSystemContext';
 import { useWindows } from '@/contexts/WindowContext';
+import { useSystem } from '@/contexts/SystemContext';
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ChevronUp, Search, Folder } from 'lucide-react';
 interface MyComputerProps {
   windowId: string;
   props?: Record<string, unknown>;
 }
+const isVirusFile = (name: string) =>
+  name === 'do_not_click' || name === 'click_me_for_password';
+
 export function MyComputer({ windowId, props }: MyComputerProps) {
-  const { getFilesByPath, getFileById } = useFileSystem();
+  const { getFilesByPath, getFileById, usbUnlocked, antivirusEnabled, corruptHint } = useFileSystem();
   const { openWindow } = useWindows();
+  const { showPopup } = useSystem();
+  const navigate = useNavigate();
   const [currentPath, setCurrentPath] = useState((props?.path as string) || '/my-computer');
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const files = getFilesByPath(currentPath);
@@ -24,11 +31,62 @@ export function MyComputer({ windowId, props }: MyComputerProps) {
     setSelectedFile(null);
   };
   const handleFileDoubleClick = (file: FileItem) => {
+    if (file.name === 'unlock.exe' && file.path.startsWith('/my-computer/e') && usbUnlocked) {
+      navigate('/ending1');
+      return;
+    }
+    if (isVirusFile(file.name)) {
+      if (antivirusEnabled) {
+        showPopup({
+          id: `av-blocked-${Date.now()}`,
+          type: 'info',
+          title: 'Anti-Virus',
+          message: 'Anti-virus has blocked a virus.',
+          buttons: [{ label: 'OK' }],
+        });
+        return;
+      }
+
+      corruptHint();
+      showPopup({
+        id: `virus-detected-${Date.now()}`,
+        type: 'error',
+        title: 'Malware detected',
+        message: 'A hint was corrupted.',
+        buttons: [{ label: 'OK' }],
+      });
+      return;
+    }
     if (file.type === 'folder' || file.type === 'drive') {
+      if (file.type === 'drive' && file.path === '/my-computer/e' && !usbUnlocked) {
+        openWindow({
+          id: 'usb-password',
+          title: 'USB Password Required',
+          icon: '/xp-icons/unlock.png',
+          component: 'UsbPasswordPrompt',
+          x: 180,
+          y: 120,
+          width: 420,
+          height: 260,
+        });
+        return;
+      }
       navigateTo(file.path);
     } else {
       // Open file in appropriate app
-      if (file.name.endsWith('.txt') || file.name.endsWith('.doc')) {
+      if (file.name.endsWith('.js')) {
+        openWindow({
+          id: `notepadpp-${file.id}`,
+          title: `${file.name} - Notepad++`,
+          icon: '/xp-icons/notepadpp.png',
+          component: 'NotepadPlusPlus',
+          x: 150,
+          y: 100,
+          width: 800,
+          height: 500,
+          props: { content: file.content, fileName: file.name, filePath: file.path },
+        });
+      } else if (file.name.endsWith('.txt') || file.name.endsWith('.doc')) {
         openWindow({
           id: `notepad-${file.id}`,
           title: `${file.name} - Notepad`,
@@ -38,7 +96,7 @@ export function MyComputer({ windowId, props }: MyComputerProps) {
           y: 100,
           width: 600,
           height: 400,
-          props: { content: file.content, fileName: file.name },
+          props: { content: file.content, fileName: file.name, filePath: file.path },
         });
       } else if (file.name.endsWith('.sh')) {
         openWindow({
@@ -50,7 +108,7 @@ export function MyComputer({ windowId, props }: MyComputerProps) {
           y: 100,
           width: 800,
           height: 500,
-          props: { content: file.content, fileName: file.name },
+          props: { content: file.content, fileName: file.name, filePath: file.path },
         });
       }
     }

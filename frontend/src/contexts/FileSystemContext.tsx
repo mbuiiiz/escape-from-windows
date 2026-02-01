@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import { instructionsFileName, instructionsText } from '@/story/instructionsText';
 export interface FileItem {
   id: string;
   name: string;
@@ -20,10 +21,17 @@ export interface FileItem {
 interface FileSystemContextType {
   files: FileItem[];
   recycleBin: FileItem[];
+  usbUnlocked: boolean;
+  setUsbUnlocked: (unlocked: boolean) => void;
+  antivirusEnabled: boolean;
+  setAntivirusEnabled: (enabled: boolean) => void;
   getFilesByPath: (path: string) => FileItem[];
   getFileById: (id: string) => FileItem | undefined;
   restoreFromRecycleBin: (id: string) => void;
   permanentlyDelete: (id: string) => void;
+  applyGeneratedFiles: (generated: { path: string; content: string; metadata?: FileItem['metadata'] }[]) => void;
+  corruptHint: () => void;
+  updateFileContent: (path: string, content: string) => boolean;
 }
 // Initial file system with puzzle content
 const initialFiles: FileItem[] = [
@@ -124,6 +132,15 @@ const initialFiles: FileItem[] = [
     parentPath: '/my-computer/c/Owner',
   },
   {
+    id: 'c-owner-desktop-instructions',
+    name: instructionsFileName,
+    type: 'file',
+    icon: '/xp-icons/text.png',
+    path: `/my-computer/c/Owner/Desktop/${instructionsFileName}`,
+    parentPath: '/my-computer/c/Owner/Desktop',
+    content: instructionsText,
+  },
+  {
     id: 'c-owner-my-documents',
     name: 'My Documents',
     type: 'folder',
@@ -140,6 +157,15 @@ const initialFiles: FileItem[] = [
     parentPath: '/my-computer/c/Owner',
   },
   {
+    id: 'c-owner-downloads-do-not-click',
+    name: 'do_not_click',
+    type: 'file',
+    icon: '/xp-icons/prot.webp',
+    path: '/my-computer/c/Owner/Downloads/do_not_click',
+    parentPath: '/my-computer/c/Owner/Downloads',
+    content: 'This file looks suspicious.',
+  },
+  {
     id: 'c-owner-favourites',
     name: 'Favourites',
     type: 'folder',
@@ -154,6 +180,15 @@ const initialFiles: FileItem[] = [
     icon: '/xp-icons/notes.png',
     path: '/my-computer/c/Owner/My Documents/Notes',
     parentPath: '/my-computer/c/Owner/My Documents',
+  },
+  {
+    id: 'c-click-me-password',
+    name: 'click_me_for_password',
+    type: 'file',
+    icon: '/xp-icons/text.png',
+    path: '/my-computer/c/Owner/My Documents/Notes/click_me_for_password',
+    parentPath: '/my-computer/c/Owner/My Documents/Notes',
+    content: 'Totally not a trap.',
   },
   {
     id: 'c-todo',
@@ -372,6 +407,8 @@ const FileSystemContext = createContext<FileSystemContextType | undefined>(undef
 export function FileSystemProvider({ children }: { children: ReactNode }) {
   const [files, setFiles] = useState<FileItem[]>(initialFiles);
   const [recycleBin, setRecycleBin] = useState<FileItem[]>(initialRecycleBin);
+  const [usbUnlocked, setUsbUnlocked] = useState(false);
+  const [antivirusEnabled, setAntivirusEnabled] = useState(false);
   const getFilesByPath = (path: string): FileItem[] => {
     if (path === '/recycle-bin') {
       return recycleBin;
@@ -391,14 +428,121 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
   const permanentlyDelete = (id: string) => {
     setRecycleBin(prev => prev.filter(f => f.id !== id));
   };
+
+  const updateFileContent = (path: string, content: string) => {
+    let updated = false;
+    setFiles(prev => prev.map((file) => {
+      if (file.path === path) {
+        updated = true;
+        return { ...file, content };
+      }
+      return file;
+    }));
+    return updated;
+  };
+
+  const corruptHint = useCallback(() => {
+    const hintPaths = [
+      '/my-computer/c/Owner/My Documents/Notes/notes.txt',
+      '/my-computer/c/Owner/My Documents/Notes/syntax_help.txt',
+      '/my-computer/c/Owner/My Documents/Notes/passwords_draft.txt',
+      '/my-computer/c/Owner/My Documents/Notes/random_thoughts.txt',
+    ];
+
+    setFiles(prev => {
+      let corrupted = false;
+      const next = prev.map((file) => {
+        if (corrupted) return file;
+        if (hintPaths.includes(file.path) && (file.content ?? '') !== '') {
+          corrupted = true;
+          return { ...file, content: '' };
+        }
+        return file;
+      });
+      return next;
+    });
+  }, []);
+
+  const applyGeneratedFiles = useCallback((generated: { path: string; content: string; metadata?: FileItem['metadata'] }[]) => {
+    const recycleEntries: Array<{ name: string; content: string; metadata?: FileItem['metadata'] }> = [];
+    const normalEntries: Array<{ path: string; content: string; metadata?: FileItem['metadata'] }> = [];
+
+    for (const f of generated) {
+      if (!f?.path) continue;
+      if (f.path.startsWith("C:/Recycle Bin/")) {
+        const name = f.path.split("/").pop() || "unknown.txt";
+        recycleEntries.push({ name, content: f.content ?? "", metadata: f.metadata });
+        continue;
+      }
+      if (f.path.startsWith("C:/")) {
+        const normalized = `/my-computer/c/Owner/${f.path.slice("C:/".length)}`;
+        normalEntries.push({ path: normalized, content: f.content ?? "", metadata: f.metadata });
+        continue;
+      }
+    }
+
+    setFiles(prev => {
+      const byPath = new Map(prev.map(item => [item.path, item]));
+      for (const entry of normalEntries) {
+        const existing = byPath.get(entry.path);
+        if (existing) {
+          byPath.set(entry.path, {
+            ...existing,
+            content: entry.content,
+            metadata: entry.metadata || existing.metadata,
+          });
+          continue;
+        }
+
+        const pathParts = entry.path.split("/").filter(Boolean);
+        const name = pathParts[pathParts.length - 1] || "unknown.txt";
+        const parentPath = "/" + pathParts.slice(0, -1).join("/");
+
+        const newItem: FileItem = {
+          id: `gen-${entry.path}`,
+          name,
+          type: "file",
+          icon: "/xp-icons/text.png",
+          path: entry.path,
+          parentPath,
+          content: entry.content,
+          metadata: entry.metadata,
+        };
+        byPath.set(entry.path, newItem);
+      }
+      return Array.from(byPath.values());
+    });
+
+    if (recycleEntries.length > 0) {
+      setRecycleBin(recycleEntries.map((entry) => ({
+        id: `gen-recycle-${entry.name}`,
+        name: entry.name,
+        type: "file",
+        icon: "/xp-icons/text.png",
+        path: `/recycle-bin/${entry.name}`,
+        parentPath: "/recycle-bin",
+        content: entry.content,
+        metadata: entry.metadata,
+        isDeleted: true,
+      })));
+    }
+  }, []);
+
   return (
     <FileSystemContext.Provider value={{
       files,
       recycleBin,
+      usbUnlocked,
+      setUsbUnlocked,
+      antivirusEnabled,
+      setAntivirusEnabled,
       getFilesByPath,
       getFileById,
       restoreFromRecycleBin,
       permanentlyDelete,
+      applyGeneratedFiles,
+      corruptHint,
+      updateFileContent,
     }}>
       {children}
     </FileSystemContext.Provider>
