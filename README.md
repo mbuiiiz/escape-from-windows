@@ -69,7 +69,6 @@ Escape from Windows is a browser-based puzzle adventure game that simulates a Wi
 # List any required software, API keys, or accounts needed
 - Node.js v14+
 - Python 3.8+
-# (Add any API keys or services if needed)
 ```
 
 ### Installation
@@ -101,9 +100,10 @@ cd ../backend
 
 ## 🤝 Team
 
-- **[Name]** - [Role] - [GitHub](https://github.com/username) | [LinkedIn](https://linkedin.com/in/username)
-- **[Name]** - [Role] - [GitHub](https://github.com/username) | [LinkedIn](https://linkedin.com/in/username)
-- **[Name]** - [Role] - [GitHub](https://github.com/username) | [LinkedIn](https://linkedin.com/in/username)
+- **[James Hoang]** - [GitHub](https://github.com/James-hg) 
+- **[Mike Bui]** - [GitHub](https://github.com/mbuiiiz) 
+- **[William Li]** - [GitHub](https://github.com/username) 
+- **[Jimmy Hoang]** - [GitHub](https://github.com/jim-hoang) 
 
 ## 🙏 Acknowledgments
 
@@ -112,27 +112,5 @@ cd ../backend
 - Inspiration sources or similar projects
 
 **Made with ❤️ at xhacks**
-# Hackathon Web Game Monorepo (Template)
-
-## Repo structure
-
-```
-/
-  frontend/        # Vite + React template (do not modify in this scaffolding task)
-  backend/         # Spring Boot (template only; no implementation yet)
-  docker-compose.yml
-  .env.example
-  README.md
 ```
 
-## Notes
-
-- `frontend/` is an existing default Vite + React template.
-- `backend/` is scaffolding only (folders + placeholder files).
-- Docker is **optional** and must not be required for non-Docker workflows.
-
-## Team ownership rules (minimize merge conflicts)
-
-Backend ownership:
-- Dev A: `config/`, `controller/`, `dto/`, `model/`, `repo/`
-- Dev B: `service/`, `service/puzzle/`, `service/filesystem/`, `error/`
