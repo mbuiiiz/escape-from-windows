@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useWindows } from '@/contexts/WindowContext';
 import { useSystem } from '@/contexts/SystemContext';
 import { StartMenu } from '@/components/xp/StartMenu';
+import xpIcon from '@/assets/XP-ICON.png';
+import xpVolume from '@/assets/XP-VOLUME.png';
+import xpWifi from '@/assets/XP-WIFI.jpg';
+import explorerIcon from '@/assets/tinyExplorer.png'
+
 export function Taskbar() {
   const { windows, focusWindow, activeWindowId } = useWindows();
   const { systemTime, isStartMenuOpen, setStartMenuOpen } = useSystem();
@@ -31,17 +36,9 @@ export function Taskbar() {
           className="xp-start-button"
           onClick={() => setStartMenuOpen(!isStartMenuOpen)}
         >
-          <img src="/xp-icons/windows-logo.png" alt="Start" />
+          <img src={xpIcon} alt="Start" />
           <span>start</span>
         </button>
-        {/* Quick Launch */}
-        <div className="xp-quick-launch">
-          <img
-            src="/xp-icons/ie-small.png"
-            alt="IE"
-            className="w-4 h-4 cursor-pointer opacity-80 hover:opacity-100"
-          />
-        </div>
         {/* Running Programs */}
         <div className="xp-taskbar-programs">
           {windows.map((win) => (
@@ -58,8 +55,8 @@ export function Taskbar() {
         {/* System Tray */}
         <div className="xp-system-tray">
           <div className="xp-tray-icons">
-            <img src="/xp-icons/volume.png" alt="Volume" className="xp-tray-icon" />
-            <img src="/xp-icons/network.png" alt="Network" className="xp-tray-icon" />
+            <img src={xpVolume} alt="Volume" className="xp-tray-icon" />
+            <img src={xpWifi} alt="Network" className="xp-tray-icon" />
           </div>
           <div className="xp-clock">
             {formatTime(currentTime)}
