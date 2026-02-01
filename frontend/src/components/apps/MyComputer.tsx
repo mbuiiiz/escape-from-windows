@@ -7,7 +7,7 @@ interface MyComputerProps {
   props?: Record<string, unknown>;
 }
 export function MyComputer({ windowId, props }: MyComputerProps) {
-  const { getFilesByPath, getFileById } = useFileSystem();
+  const { getFilesByPath, getFileById, usbUnlocked } = useFileSystem();
   const { openWindow } = useWindows();
   const [currentPath, setCurrentPath] = useState((props?.path as string) || '/my-computer');
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -25,6 +25,19 @@ export function MyComputer({ windowId, props }: MyComputerProps) {
   };
   const handleFileDoubleClick = (file: FileItem) => {
     if (file.type === 'folder' || file.type === 'drive') {
+      if (file.type === 'drive' && file.path === '/my-computer/e' && !usbUnlocked) {
+        openWindow({
+          id: 'usb-password',
+          title: 'USB Password Required',
+          icon: '/xp-icons/unlock.png',
+          component: 'UsbPasswordPrompt',
+          x: 180,
+          y: 120,
+          width: 420,
+          height: 260,
+        });
+        return;
+      }
       navigateTo(file.path);
     } else {
       // Open file in appropriate app

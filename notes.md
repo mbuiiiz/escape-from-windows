@@ -27,7 +27,7 @@ Application components - src/components/apps/
 USB, puzzles, and backend integration - contexts/ and backend/
 
 - [ ] usb unlock.exe not working (FileSystemContext.tsx, backend)
-- [ ] add password for usb popup window (SystemPopup.tsx, contexts)
-- [ ] add password limits if out of attempts -> use code instead (contexts/SystemContext.tsx)
+- [x] add password for usb popup window (SystemPopup.tsx, contexts)
+- [x] add password limits if out of attempts -> use code instead (contexts/SystemContext.tsx)
 - [ ] virus and anti-virus (backend, service layer)
-- [ ] integrate AI with data generation (backend)
+- [x] integrate AI with data generation (backend)
