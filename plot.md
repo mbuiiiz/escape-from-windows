@@ -227,12 +227,6 @@ Owner/
         └── experiments/
             ├── temp.js              ❌
             └── hello_world.js       ❌
-    ├── Logs/
-        ├── system.log               ⭐
-        ├── install.log              ⭐
-        ├── usb_activity.log         ⭐
-        ├── error_2005.log           ❌
-        └── network_test.log         ❌
     ├── Images/
         ├── desktop_bg.bmp           ⭐
         ├── family_photo.jpg         ⭐
