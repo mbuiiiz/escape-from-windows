@@ -97,7 +97,7 @@ export function Desktop() {
     };
     return (
         <div
-            className="flex-1 p-2 relative overflow-hidden"
+            className="relative h-full w-full overflow-hidden"
             onClick={handleDesktopClick}
             onContextMenu={handleContextMenu}
             style={{
@@ -107,7 +107,7 @@ export function Desktop() {
             }}
         >
             {/* Desktop Icons Grid */}
-            <div className="grid grid-cols-1 gap-1 w-fit">
+            <div className="grid grid-cols-1 gap-1 w-fit p-2">
                 {desktopIcons.map((icon) => (
                     <DesktopIcon
                         key={icon.id}
