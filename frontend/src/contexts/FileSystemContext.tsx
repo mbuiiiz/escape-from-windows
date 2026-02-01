@@ -21,6 +21,8 @@ export interface FileItem {
 interface FileSystemContextType {
   files: FileItem[];
   recycleBin: FileItem[];
+  usbUnlocked: boolean;
+  setUsbUnlocked: (unlocked: boolean) => void;
   getFilesByPath: (path: string) => FileItem[];
   getFileById: (id: string) => FileItem | undefined;
   restoreFromRecycleBin: (id: string) => void;
@@ -383,6 +385,7 @@ const FileSystemContext = createContext<FileSystemContextType | undefined>(undef
 export function FileSystemProvider({ children }: { children: ReactNode }) {
   const [files, setFiles] = useState<FileItem[]>(initialFiles);
   const [recycleBin, setRecycleBin] = useState<FileItem[]>(initialRecycleBin);
+  const [usbUnlocked, setUsbUnlocked] = useState(false);
   const getFilesByPath = (path: string): FileItem[] => {
     if (path === '/recycle-bin') {
       return recycleBin;
@@ -466,6 +469,8 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
     <FileSystemContext.Provider value={{
       files,
       recycleBin,
+      usbUnlocked,
+      setUsbUnlocked,
       getFilesByPath,
       getFileById,
       restoreFromRecycleBin,

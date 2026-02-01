@@ -19,6 +19,11 @@ public class PlayerSession {
     private LocalDateTime lastAccessed;
     private String generatorSeed;
     private String generatorPassword;
+    private boolean usbUnlocked;
+    private boolean usbBlocked;
+    private int usbFailedAttemptsTotal;
+    private int usbFailedAttemptsStreak;
+    private LocalDateTime usbLockoutUntil;
 
     public PlayerSession() {
         this.sessionId = UUID.randomUUID().toString();
@@ -82,5 +87,45 @@ public class PlayerSession {
 
     public void setGeneratorPassword(String generatorPassword) {
         this.generatorPassword = generatorPassword;
+    }
+
+    public boolean isUsbUnlocked() {
+        return usbUnlocked;
+    }
+
+    public void setUsbUnlocked(boolean usbUnlocked) {
+        this.usbUnlocked = usbUnlocked;
+    }
+
+    public boolean isUsbBlocked() {
+        return usbBlocked;
+    }
+
+    public void setUsbBlocked(boolean usbBlocked) {
+        this.usbBlocked = usbBlocked;
+    }
+
+    public int getUsbFailedAttemptsTotal() {
+        return usbFailedAttemptsTotal;
+    }
+
+    public void setUsbFailedAttemptsTotal(int usbFailedAttemptsTotal) {
+        this.usbFailedAttemptsTotal = usbFailedAttemptsTotal;
+    }
+
+    public int getUsbFailedAttemptsStreak() {
+        return usbFailedAttemptsStreak;
+    }
+
+    public void setUsbFailedAttemptsStreak(int usbFailedAttemptsStreak) {
+        this.usbFailedAttemptsStreak = usbFailedAttemptsStreak;
+    }
+
+    public LocalDateTime getUsbLockoutUntil() {
+        return usbLockoutUntil;
+    }
+
+    public void setUsbLockoutUntil(LocalDateTime usbLockoutUntil) {
+        this.usbLockoutUntil = usbLockoutUntil;
     }
 }

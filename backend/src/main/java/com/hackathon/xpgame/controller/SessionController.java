@@ -14,10 +14,14 @@ import com.hackathon.xpgame.dto.GetSessionResponse;
 import com.hackathon.xpgame.model.PlayerSession;
 import com.hackathon.xpgame.service.GameGeneratorService;
 import com.hackathon.xpgame.service.SessionService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api/sessions")
 public class SessionController {
+
+    private static final Logger logger = LoggerFactory.getLogger(SessionController.class);
 
     @Autowired
     private SessionService sessionService;
@@ -35,6 +39,7 @@ public class SessionController {
         session.setGeneratorSeed(run.getSeed());
         session.setGeneratorPassword(run.getPassword());
         sessionService.updateSession(session);
+        logger.info("Generated USB password for session {}: {}", session.getSessionId(), run.getPassword());
 
         CreateSessionResponse response = new CreateSessionResponse();
         response.setSessionId(session.getSessionId());
