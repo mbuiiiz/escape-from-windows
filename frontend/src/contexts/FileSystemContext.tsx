@@ -25,6 +25,7 @@ interface FileSystemContextType {
   getFileById: (id: string) => FileItem | undefined;
   restoreFromRecycleBin: (id: string) => void;
   permanentlyDelete: (id: string) => void;
+  applyGeneratedFiles: (generated: { path: string; content: string }[]) => void;
 }
 // Initial file system with puzzle content
 const initialFiles: FileItem[] = [
@@ -401,6 +402,66 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
   const permanentlyDelete = (id: string) => {
     setRecycleBin(prev => prev.filter(f => f.id !== id));
   };
+
+  const applyGeneratedFiles = (generated: { path: string; content: string }[]) => {
+    const recycleEntries: Array<{ name: string; content: string }> = [];
+    const normalEntries: Array<{ path: string; content: string }> = [];
+
+    for (const f of generated) {
+      if (!f?.path) continue;
+      if (f.path.startsWith("C:/Recycle Bin/")) {
+        const name = f.path.split("/").pop() || "unknown.txt";
+        recycleEntries.push({ name, content: f.content ?? "" });
+        continue;
+      }
+      if (f.path.startsWith("C:/")) {
+        const normalized = `/my-computer/c/Owner/${f.path.slice("C:/".length)}`;
+        normalEntries.push({ path: normalized, content: f.content ?? "" });
+        continue;
+      }
+    }
+
+    setFiles(prev => {
+      const byPath = new Map(prev.map(item => [item.path, item]));
+      for (const entry of normalEntries) {
+        const existing = byPath.get(entry.path);
+        if (existing) {
+          byPath.set(entry.path, { ...existing, content: entry.content });
+          continue;
+        }
+
+        const pathParts = entry.path.split("/").filter(Boolean);
+        const name = pathParts[pathParts.length - 1] || "unknown.txt";
+        const parentPath = "/" + pathParts.slice(0, -1).join("/");
+
+        const newItem: FileItem = {
+          id: `gen-${entry.path}`,
+          name,
+          type: "file",
+          icon: "/xp-icons/text.png",
+          path: entry.path,
+          parentPath,
+          content: entry.content,
+        };
+        byPath.set(entry.path, newItem);
+      }
+      return Array.from(byPath.values());
+    });
+
+    if (recycleEntries.length > 0) {
+      setRecycleBin(recycleEntries.map((entry) => ({
+        id: `gen-recycle-${entry.name}`,
+        name: entry.name,
+        type: "file",
+        icon: "/xp-icons/text.png",
+        path: `/recycle-bin/${entry.name}`,
+        parentPath: "/recycle-bin",
+        content: entry.content,
+        isDeleted: true,
+      })));
+    }
+  };
+
   return (
     <FileSystemContext.Provider value={{
       files,
@@ -409,6 +470,7 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
       getFileById,
       restoreFromRecycleBin,
       permanentlyDelete,
+      applyGeneratedFiles,
     }}>
       {children}
     </FileSystemContext.Provider>

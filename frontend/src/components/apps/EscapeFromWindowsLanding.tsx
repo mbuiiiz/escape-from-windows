@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function EscapeFromWindowsLanding({ onStart }: { onStart: () => void }) {
+export function EscapeFromWindowsLanding({ onStart, isStarting }: { onStart: () => void; isStarting?: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center h-full bg-white">
       <div className="text-center px-8">
@@ -9,8 +9,8 @@ export function EscapeFromWindowsLanding({ onStart }: { onStart: () => void }) {
           Click Start to begin. Your instructions will be saved on the Desktop.
         </p>
         <div className="mt-6 flex gap-3 justify-center">
-          <button className="xp-button" onClick={onStart}>
-            Start
+          <button className="xp-button" onClick={onStart} disabled={isStarting}>
+            {isStarting ? "Starting..." : "Start"}
           </button>
         </div>
       </div>

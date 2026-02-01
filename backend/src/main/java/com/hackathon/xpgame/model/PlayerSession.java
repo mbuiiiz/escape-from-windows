@@ -1,9 +1,11 @@
 package com.hackathon.xpgame.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 
 @Entity
 public class PlayerSession {
@@ -11,11 +13,15 @@ public class PlayerSession {
     @Id
     private String sessionId;
     private String playerName;
+    @Transient
     private ProgressState progress;
     private LocalDateTime createdAt;
     private LocalDateTime lastAccessed;
+    private String generatorSeed;
+    private String generatorPassword;
 
     public PlayerSession() {
+        this.sessionId = UUID.randomUUID().toString();
         this.progress = new ProgressState();
         this.createdAt = LocalDateTime.now();
         this.lastAccessed = LocalDateTime.now();
@@ -60,5 +66,21 @@ public class PlayerSession {
 
     public void setLastAccessed(LocalDateTime lastAccessed) {
         this.lastAccessed = lastAccessed;
+    }
+
+    public String getGeneratorSeed() {
+        return generatorSeed;
+    }
+
+    public void setGeneratorSeed(String generatorSeed) {
+        this.generatorSeed = generatorSeed;
+    }
+
+    public String getGeneratorPassword() {
+        return generatorPassword;
+    }
+
+    public void setGeneratorPassword(String generatorPassword) {
+        this.generatorPassword = generatorPassword;
     }
 }

@@ -28,7 +28,19 @@ export function MyComputer({ windowId, props }: MyComputerProps) {
       navigateTo(file.path);
     } else {
       // Open file in appropriate app
-      if (file.name.endsWith('.txt') || file.name.endsWith('.doc')) {
+      if (file.name.endsWith('.js')) {
+        openWindow({
+          id: `notepadpp-${file.id}`,
+          title: `${file.name} - Notepad++`,
+          icon: '/xp-icons/notepadpp.png',
+          component: 'NotepadPlusPlus',
+          x: 150,
+          y: 100,
+          width: 800,
+          height: 500,
+          props: { content: file.content, fileName: file.name },
+        });
+      } else if (file.name.endsWith('.txt') || file.name.endsWith('.doc')) {
         openWindow({
           id: `notepad-${file.id}`,
           title: `${file.name} - Notepad`,

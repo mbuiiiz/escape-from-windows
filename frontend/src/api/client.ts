@@ -1,5 +1,5 @@
 const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+    import.meta.env.VITE_API_BASE_URL || "";
 
 export class ApiClient {
     private baseUrl: string;
@@ -9,17 +9,24 @@ export class ApiClient {
     }
 
     async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-        // TODO: Implement API request logic
-        const response = await fetch(`${this.baseUrl}${endpoint}`, {
-            headers: {
-                "Content-Type": "application/json",
-                ...options.headers,
-            },
-            ...options,
-        });
+        const url = `${this.baseUrl}${endpoint}`;
+        let response: Response;
+        try {
+            response = await fetch(url, {
+                headers: {
+                    "Content-Type": "application/json",
+                    ...options.headers,
+                },
+                ...options,
+            });
+        } catch (e) {
+            const msg =
+                e instanceof Error ? e.message : "Network error while calling API";
+            throw new Error(`${msg} (${url})`);
+        }
 
         if (!response.ok) {
-            throw new Error(`API error: ${response.statusText}`);
+            throw new Error(`API error: ${response.status} ${response.statusText} (${url})`);
         }
 
         return response.json();

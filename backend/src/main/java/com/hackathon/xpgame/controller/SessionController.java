@@ -12,6 +12,7 @@ import com.hackathon.xpgame.dto.CreateSessionRequest;
 import com.hackathon.xpgame.dto.CreateSessionResponse;
 import com.hackathon.xpgame.dto.GetSessionResponse;
 import com.hackathon.xpgame.model.PlayerSession;
+import com.hackathon.xpgame.service.GameGeneratorService;
 import com.hackathon.xpgame.service.SessionService;
 
 @RestController
@@ -21,15 +22,24 @@ public class SessionController {
     @Autowired
     private SessionService sessionService;
 
+    @Autowired
+    private GameGeneratorService gameGeneratorService;
+
     @PostMapping
     public CreateSessionResponse createSession(@RequestBody CreateSessionRequest request) {
-        // TODO: Implement session creation
         String playerName = request.getPlayerName();
+        String seed = request.getSeed();
         PlayerSession session = sessionService.createSession(playerName);
+
+        GameGeneratorService.GeneratedRun run = gameGeneratorService.generateRun(seed);
+        session.setGeneratorSeed(run.getSeed());
+        session.setGeneratorPassword(run.getPassword());
+        sessionService.updateSession(session);
 
         CreateSessionResponse response = new CreateSessionResponse();
         response.setSessionId(session.getSessionId());
         response.setCreatedAt(session.getCreatedAt());
+        response.setGame(run.getGame());
 
         return response;
     }

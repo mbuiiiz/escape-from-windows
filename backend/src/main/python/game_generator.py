@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
 import json
 import random
 import secrets
+import sys
 from typing import Any, Dict, List, Tuple
 
 
@@ -147,10 +149,6 @@ def generate_run_json(seed: str | None = None) -> str:
     """
     payload = generate_run_payload(seed=seed)
     return json.dumps(payload, ensure_ascii=False)
-
-
-if __name__ == "__main__":
-    print(generate_run_json())
 
 
 def _generate_owner_for_run(rng: random.Random) -> OwnerProfile:
@@ -1247,3 +1245,16 @@ def generate_consistency_notes(blocks: Tuple[str, str, str, str, str]) -> str:
         "- block5 is supported by usb_decrypt/README.md (ending is repeated, not drawn) and old_scripts/notes_old.txt "
         "(repeated twice).\n"
     )
+
+
+def _main(argv: List[str]) -> int:
+    parser = argparse.ArgumentParser(description="Generate a new XP game run payload as JSON.")
+    parser.add_argument("--seed", default=None, help="Optional RNG seed (hex or any string).")
+    args = parser.parse_args(argv[1:])
+
+    print(generate_run_json(seed=args.seed))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(_main(sys.argv))

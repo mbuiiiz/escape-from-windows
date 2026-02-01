@@ -5,6 +5,9 @@ import { useWindows } from '@/contexts/WindowContext';
 import { EscapeFromWindowsLanding } from './EscapeFromWindowsLanding';
 import txtIcon from '@/assets/txt-icon.jpg';
 import { instructionsFileName, instructionsText } from '@/story/instructionsText';
+import { apiClient } from '@/api/client';
+import { useFileSystem } from '@/contexts/FileSystemContext';
+import { useSystem } from '@/contexts/SystemContext';
 interface InternetExplorerProps {
   windowId: string;
   props?: Record<string, unknown>;
@@ -18,12 +21,15 @@ const browsingHistory = [
 ];
 export function InternetExplorer({ windowId, props }: InternetExplorerProps) {
   const { closeWindow, openWindow } = useWindows();
+  const { applyGeneratedFiles } = useFileSystem();
+  const { showPopup } = useSystem();
   const homeUrl = 'http://escape-from-windows.local';
   const initialUrl = (props?.initialUrl as string) || homeUrl;
   const tabTitle = (props?.tabTitle as string) || 'Internet Explorer';
 
   const [currentUrl, setCurrentUrl] = useState(initialUrl);
   const [showHistory, setShowHistory] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
 
   const openInstructions = () => {
     openWindow({
@@ -43,14 +49,48 @@ export function InternetExplorer({ windowId, props }: InternetExplorerProps) {
     });
   };
 
-  const handleStart = () => {
-    closeWindow(windowId);
-    openInstructions();
+  const handleStart = async () => {
+    if (isStarting) return;
+    setIsStarting(true);
+    try {
+      const res = await apiClient.request<{
+        sessionId: string;
+        game?: { files?: Array<{ path: string; content: string }> };
+      }>('/api/sessions', {
+        method: 'POST',
+        body: JSON.stringify({ playerName: 'Player' }),
+      });
+
+      if (res?.sessionId) {
+        localStorage.setItem('xpgame.sessionId', res.sessionId);
+      }
+
+      const files = res?.game?.files;
+      if (Array.isArray(files)) {
+        applyGeneratedFiles(files);
+      }
+
+      closeWindow(windowId);
+      openInstructions();
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Unknown error';
+      showPopup({
+        id: `start-error-${Date.now()}`,
+        type: 'error',
+        title: 'Could not start game',
+        message:
+          message.includes('Failed to fetch') || message.includes('Network error')
+            ? 'Backend not reachable. Start the backend on http://localhost:8080 and try again.'
+            : message,
+        buttons: [{ label: 'OK' }],
+      });
+      setIsStarting(false);
+    }
   };
 
   const renderPage = () => {
     if (currentUrl.includes('escape-from-windows')) {
-      return <EscapeFromWindowsLanding onStart={handleStart} />;
+      return <EscapeFromWindowsLanding onStart={handleStart} isStarting={isStarting} />;
     }
     if (currentUrl.includes('yahoo')) {
       return <YahooMail />;
