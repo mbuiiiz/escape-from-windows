@@ -119,10 +119,6 @@ const HomePage: React.FC = () => {
           <button className="ie-button" onClick={handleStart}>
             Start
           </button>
-
-          <button className="ie-button">
-            Continue
-          </button>
         </div>
       </div>
       {cursor && cursor.show && (

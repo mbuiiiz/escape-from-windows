@@ -31,27 +31,25 @@ export function WindowProvider({ children }: { children: ReactNode }) {
   const [windows, setWindows] = useState<WindowState[]>([]);
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
   const openWindow = useCallback((windowConfig: Omit<WindowState, 'zIndex' | 'isMinimized' | 'isMaximized'>) => {
-    // Check if window already exists
-    const existingWindow = windows.find(w => w.id === windowConfig.id);
-    if (existingWindow) {
-      // Just focus it
-      setWindows(prev => prev.map(w => 
-        w.id === windowConfig.id 
-          ? { ...w, isMinimized: false, zIndex: ++nextZIndex }
-          : w
-      ));
-      setActiveWindowId(windowConfig.id);
-      return;
-    }
-    const newWindow: WindowState = {
-      ...windowConfig,
-      isMinimized: false,
-      isMaximized: false,
-      zIndex: ++nextZIndex,
-    };
-    setWindows(prev => [...prev, newWindow]);
-    setActiveWindowId(newWindow.id);
-  }, [windows]);
+    setWindows(prev => {
+      const existingWindow = prev.find(w => w.id === windowConfig.id);
+      if (existingWindow) {
+        return prev.map(w =>
+          w.id === windowConfig.id
+            ? { ...w, isMinimized: false, zIndex: ++nextZIndex }
+            : w
+        );
+      }
+      const newWindow: WindowState = {
+        ...windowConfig,
+        isMinimized: false,
+        isMaximized: false,
+        zIndex: ++nextZIndex,
+      };
+      return [...prev, newWindow];
+    });
+    setActiveWindowId(windowConfig.id);
+  }, []);
   const closeWindow = useCallback((id: string) => {
     setWindows(prev => prev.filter(w => w.id !== id));
     setActiveWindowId(prev => prev === id ? null : prev);

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { instructionsFileName, instructionsText } from '@/story/instructionsText';
 export interface FileItem {
   id: string;
   name: string;
@@ -122,6 +123,15 @@ const initialFiles: FileItem[] = [
     icon: '/xp-icons/my-computer-icon.webp',
     path: '/my-computer/c/Owner/Desktop',
     parentPath: '/my-computer/c/Owner',
+  },
+  {
+    id: 'c-owner-desktop-instructions',
+    name: instructionsFileName,
+    type: 'file',
+    icon: '/xp-icons/text.png',
+    path: `/my-computer/c/Owner/Desktop/${instructionsFileName}`,
+    parentPath: '/my-computer/c/Owner/Desktop',
+    content: instructionsText,
   },
   {
     id: 'c-owner-my-documents',

@@ -11,9 +11,21 @@ import notepadIcon from "@/assets/notepad-icon.webp";
 import notepadppIcon from "@/assets/node++-icon.png";
 import cmdIcon from "@/assets/command-prompt-icon.png";
 import systemRestoreIcon from "@/assets/system-restore-icon.jpeg";
+import txtIcon from "@/assets/txt-icon.jpg";
 import xpBackground from "@/assets/xp-background.webp";
+import { instructionsFileName, instructionsText } from "@/story/instructionsText";
 
-const desktopIcons = [
+type DesktopIconConfig = {
+    id: string;
+    name: string;
+    icon: string;
+    component: string;
+    windowId?: string;
+    windowProps?: Record<string, unknown>;
+    windowTitle?: string;
+};
+
+const desktopIcons: DesktopIconConfig[] = [
     {
         id: "my-computer",
         name: "My Computer",
@@ -51,6 +63,19 @@ const desktopIcons = [
         icon: systemRestoreIcon,
         component: "SystemRestore",
     },
+    {
+        id: "instructions",
+        name: instructionsFileName,
+        icon: txtIcon,
+        component: "Notepad",
+        windowId: "instructions-notepad",
+        windowTitle: `${instructionsFileName} - Notepad`,
+        windowProps: {
+            fileName: instructionsFileName,
+            content: instructionsText,
+            readOnly: true,
+        },
+    },
 ];
 export function Desktop() {
     const { openWindow } = useWindows();
@@ -60,7 +85,7 @@ export function Desktop() {
         x: number;
         y: number;
     } | null>(null);
-    const handleIconDoubleClick = (icon: (typeof desktopIcons)[0]) => {
+    const handleIconDoubleClick = (icon: DesktopIconConfig) => {
         const windowConfigs: Record<string, { width: number; height: number }> =
             {
                 MyComputer: { width: 700, height: 500 },
@@ -77,13 +102,14 @@ export function Desktop() {
             height: 400,
         };
         openWindow({
-            id: `${icon.id}-${Date.now()}`,
-            title: icon.name,
+            id: icon.windowId || `${icon.id}-${Date.now()}`,
+            title: icon.windowTitle || icon.name,
             icon: icon.icon,
             component: icon.component,
             x: 100 + Math.random() * 100,
             y: 50 + Math.random() * 50,
             ...config,
+            props: icon.windowProps,
         });
     };
     const handleDesktopClick = () => {
