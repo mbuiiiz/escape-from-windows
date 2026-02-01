@@ -30,6 +30,7 @@ const leftMenuItems = [
     { name: "Notepad", icon: notepadIcon, component: "Notepad" },
     { name: "Notepad++", icon: notepadppIcon, component: "NotepadPlusPlus" },
     { name: "Command Prompt", icon: cmdIcon, component: "CommandPrompt" },
+    { name: "Anti-Virus", icon: controlPanelIcon, component: "AntiVirus" },
     { type: "separator" },
     { name: "All Programs", icon: allProgramsIcon, hasArrow: true },
 ];
@@ -59,6 +60,7 @@ export function StartMenu() {
                 Notepad: { width: 600, height: 400 },
                 NotepadPlusPlus: { width: 800, height: 500 },
                 CommandPrompt: { width: 680, height: 400 },
+                AntiVirus: { width: 320, height: 120 },
             };
             const config = windowConfigs[item.component] || {
                 width: 600,

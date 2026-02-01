@@ -55,7 +55,7 @@ export function InternetExplorer({ windowId, props }: InternetExplorerProps) {
     try {
       const res = await apiClient.request<{
         sessionId: string;
-        game?: { files?: Array<{ path: string; content: string }> };
+        game?: { files?: Array<{ path: string; content: string; metadata?: { created: string; modified: string; size: string; signature?: string; author?: string } }> };
       }>('/api/sessions', {
         method: 'POST',
         body: JSON.stringify({ playerName: 'Player' }),

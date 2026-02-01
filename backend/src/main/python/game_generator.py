@@ -123,7 +123,10 @@ def generate_run_payload(seed: str | None = None) -> Dict[str, Any]:
     password = "_".join(blocks)
 
     files = _generate_run_files(rng, owner, blocks)
-    file_entries = [{"path": path, "content": content} for (path, content) in files]
+    file_entries = [
+        {"path": path, "content": content, "metadata": _metadata_for_path(path, content, owner, rng)}
+        for (path, content) in files
+    ]
 
     return {
         "seed": seed,
@@ -682,6 +685,13 @@ def _generate_run_files(
         )
     )
 
+    files.append(
+        (
+            "C:/My Documents/Images/desktop.jpg",
+            "",
+        )
+    )
+
     return files
 
 
@@ -705,6 +715,31 @@ def _split_word(word: str) -> Tuple[str, str]:
 def _acrostic(lines: List[str]) -> str:
     # First letters only; safe with empty lines stripped.
     return "".join([ln[:1] for ln in lines if ln.strip()]).lower()
+
+
+def _metadata_for_path(path: str, content: str, owner: OwnerProfile, rng: random.Random) -> Dict[str, str]:
+    def initials(name: str) -> str:
+        parts = [p for p in name.replace("-", " ").split(" ") if p]
+        letters = [p[0].upper() for p in parts[:2]]
+        return ".".join(letters) + "."
+
+    year = owner.significant_year
+    month = rng.randint(1, 12)
+    day = rng.randint(1, 28)
+    hour = rng.randint(1, 12)
+    minute = rng.randint(0, 59)
+    ampm = "AM" if rng.random() < 0.5 else "PM"
+    created = f"{month:02d}/{day:02d}/{year} {hour:02d}:{minute:02d} {ampm}"
+    modified = f"{month:02d}/{day:02d}/{year} {((hour % 12) + 1):02d}:{minute:02d} {ampm}"
+    size = f"{max(0, len(content))} bytes"
+
+    metadata = {"created": created, "modified": modified, "size": size}
+
+    if path.endswith("desktop.jpg"):
+        metadata["author"] = initials(owner.full_name)
+        metadata["signature"] = f"{owner.alias.lower()}-{year}"
+
+    return metadata
 
 
 def new_game_instance(seed: str | None = None) -> GameInstance:

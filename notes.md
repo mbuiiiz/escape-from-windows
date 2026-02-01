@@ -4,8 +4,8 @@
 
 Frontend pages and static assets - minimal conflicts
 
-- [ ] Landing page
-- [ ] merge landing page
+- [x] Landing page
+- [x] merge landing page
 - [ ] ending page
 
 ## Person 2 - UI Components (Mike)
@@ -29,5 +29,5 @@ USB, puzzles, and backend integration - contexts/ and backend/
 - [ ] usb unlock.exe not working (FileSystemContext.tsx, backend)
 - [x] add password for usb popup window (SystemPopup.tsx, contexts)
 - [x] add password limits if out of attempts -> use code instead (contexts/SystemContext.tsx)
-- [ ] virus and anti-virus (backend, service layer)
+- [x] virus and anti-virus (backend, service layer)
 - [x] integrate AI with data generation (backend)
