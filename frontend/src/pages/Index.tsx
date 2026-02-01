@@ -41,6 +41,8 @@ const Index = () => {
           <div className="xp-os fixed inset-0 flex flex-col overflow-hidden select-none">
             {/* TEMPORARY: Link to Ending1 */}
             <a href="/ending1" style={{ position: 'absolute', top: 10, right: 10, zIndex: 9999, background: '#007bff', color: 'white', padding: '8px 16px', borderRadius: 6, textDecoration: 'none' }}>Go to Ending1 (Test)</a>
+            {/* TEMPORARY: Link to Ending2 */}
+            <a href="/ending2" style={{ position: 'absolute', top: 50, right: 10, zIndex: 9999, background: '#4b5c6b', color: 'white', padding: '8px 16px', borderRadius: 6, textDecoration: 'none' }}>Go to Ending2 (Test)</a>
             {/* Desktop takes all remaining space */}
             <div className="flex-1 overflow-hidden relative">
               <Desktop />
