@@ -18,6 +18,7 @@ const Ending2: React.FC = () => {
       <h1 className="display-4">Fail.</h1>
       <p className="lead">You failed to solve the puzzle in time.<br />
       The doors are locked forever and you are trapped here.</p>
+      <a href="/" className="btn btn-primary mt-3">Back to Landing</a>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, RotateCw, Home, History } from 'lucide-react';
 import { YahooMail } from './YahooMail.tsx';
 import { useWindows } from '@/contexts/WindowContext';
@@ -30,6 +30,7 @@ export function InternetExplorer({ windowId, props }: InternetExplorerProps) {
   const [currentUrl, setCurrentUrl] = useState(initialUrl);
   const [showHistory, setShowHistory] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
+  const [hasGame, setHasGame] = useState(false);
 
   const openInstructions = () => {
     openWindow({
@@ -70,6 +71,7 @@ export function InternetExplorer({ windowId, props }: InternetExplorerProps) {
         applyGeneratedFiles(files);
       }
 
+      setHasGame(true);
       closeWindow(windowId);
       openInstructions();
     } catch (e) {
@@ -88,9 +90,60 @@ export function InternetExplorer({ windowId, props }: InternetExplorerProps) {
     }
   };
 
+  const handleContinue = () => {
+    closeWindow(windowId);
+    openInstructions();
+  };
+
+  const handleNewGame = async () => {
+    localStorage.removeItem('xpgame.sessionId');
+    await handleStart();
+  };
+
+  useEffect(() => {
+    const sessionId = localStorage.getItem('xpgame.sessionId');
+    if (!sessionId) {
+      setHasGame(false);
+      return;
+    }
+    let cancelled = false;
+    const loadGame = async () => {
+      setIsStarting(true);
+      try {
+        const res = await apiClient.request<{
+          sessionId: string;
+          game?: { files?: Array<{ path: string; content: string; metadata?: { created: string; modified: string; size: string; signature?: string; author?: string } }> };
+        }>(`/api/sessions/${sessionId}/game`);
+        const files = res?.game?.files;
+        if (!cancelled && Array.isArray(files)) {
+          applyGeneratedFiles(files);
+          setHasGame(true);
+        } else if (!cancelled) {
+          setHasGame(false);
+        }
+      } catch {
+        if (!cancelled) setHasGame(false);
+      } finally {
+        if (!cancelled) setIsStarting(false);
+      }
+    };
+    loadGame();
+    return () => {
+      cancelled = true;
+    };
+  }, [applyGeneratedFiles]);
+
   const renderPage = () => {
     if (currentUrl.includes('escape-from-windows')) {
-      return <EscapeFromWindowsLanding onStart={handleStart} isStarting={isStarting} />;
+      return (
+        <EscapeFromWindowsLanding
+          onStart={handleStart}
+          onContinue={handleContinue}
+          onNewGame={handleNewGame}
+          hasGame={hasGame}
+          isStarting={isStarting}
+        />
+      );
     }
     if (currentUrl.includes('yahoo')) {
       return <YahooMail />;

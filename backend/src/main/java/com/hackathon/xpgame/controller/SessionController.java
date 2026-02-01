@@ -13,9 +13,12 @@ import com.hackathon.xpgame.dto.CreateSessionResponse;
 import com.hackathon.xpgame.dto.GetSessionResponse;
 import com.hackathon.xpgame.model.PlayerSession;
 import com.hackathon.xpgame.service.GameGeneratorService;
+import com.hackathon.xpgame.service.GameStateService;
 import com.hackathon.xpgame.service.SessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/sessions")
@@ -29,6 +32,9 @@ public class SessionController {
     @Autowired
     private GameGeneratorService gameGeneratorService;
 
+    @Autowired
+    private GameStateService gameStateService;
+
     @PostMapping
     public CreateSessionResponse createSession(@RequestBody CreateSessionRequest request) {
         String playerName = request.getPlayerName();
@@ -40,6 +46,8 @@ public class SessionController {
         session.setGeneratorPassword(run.getPassword());
         sessionService.updateSession(session);
         logger.info("Generated USB password for session {}: {}", session.getSessionId(), run.getPassword());
+
+        gameStateService.saveGame(session.getSessionId(), run.getGame());
 
         CreateSessionResponse response = new CreateSessionResponse();
         response.setSessionId(session.getSessionId());
@@ -60,6 +68,17 @@ public class SessionController {
         response.setProgress(fetchedSession.getProgress());
         response.setCreatedAt(fetchedSession.getCreatedAt());
 
+        return response;
+    }
+
+    @GetMapping("/{sessionId}/game")
+    public CreateSessionResponse getGame(@PathVariable String sessionId) {
+        var game = gameStateService.getGame(sessionId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Game not found"));
+
+        CreateSessionResponse response = new CreateSessionResponse();
+        response.setSessionId(sessionId);
+        response.setGame(game);
         return response;
     }
 }

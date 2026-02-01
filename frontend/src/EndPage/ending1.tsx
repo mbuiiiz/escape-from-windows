@@ -21,6 +21,7 @@ const Ending1: React.FC = () => {
         <h1 className="display-4">Congratulations!</h1>
         <p className="lead">You have solved the puzzle and reached the end of the game.<br />
         The door finally unlocks behind you and you escape the room successfully!</p>
+        <a href="/" className="btn btn-primary mt-3">Back to Landing</a>
       </div>
     </div>
   );

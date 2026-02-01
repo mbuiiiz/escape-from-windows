@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiClient } from '@/api/client';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 import { useSystem } from '@/contexts/SystemContext';
@@ -13,6 +14,7 @@ export function UsbPasswordPrompt({ windowId }: UsbPasswordPromptProps) {
   const { setUsbUnlocked } = useFileSystem();
   const { showPopup } = useSystem();
   const { closeWindow, openWindow } = useWindows();
+  const navigate = useNavigate();
 
   const [password, setPassword] = useState('');
   const [attemptsLeft, setAttemptsLeft] = useState<number | null>(null);
@@ -83,6 +85,7 @@ export function UsbPasswordPrompt({ windowId }: UsbPasswordPromptProps) {
           message: 'Password entry blocked. The only way left is to crack it.',
           buttons: [{ label: 'OK' }],
         });
+        navigate('/ending2');
         return;
       }
 

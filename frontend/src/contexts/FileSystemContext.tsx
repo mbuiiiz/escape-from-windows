@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { instructionsFileName, instructionsText } from '@/story/instructionsText';
 export interface FileItem {
   id: string;
@@ -31,6 +31,7 @@ interface FileSystemContextType {
   permanentlyDelete: (id: string) => void;
   applyGeneratedFiles: (generated: { path: string; content: string; metadata?: FileItem['metadata'] }[]) => void;
   corruptHint: () => void;
+  updateFileContent: (path: string, content: string) => boolean;
 }
 // Initial file system with puzzle content
 const initialFiles: FileItem[] = [
@@ -428,7 +429,19 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
     setRecycleBin(prev => prev.filter(f => f.id !== id));
   };
 
-  const corruptHint = () => {
+  const updateFileContent = (path: string, content: string) => {
+    let updated = false;
+    setFiles(prev => prev.map((file) => {
+      if (file.path === path) {
+        updated = true;
+        return { ...file, content };
+      }
+      return file;
+    }));
+    return updated;
+  };
+
+  const corruptHint = useCallback(() => {
     const hintPaths = [
       '/my-computer/c/Owner/My Documents/Notes/notes.txt',
       '/my-computer/c/Owner/My Documents/Notes/syntax_help.txt',
@@ -448,9 +461,9 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
       });
       return next;
     });
-  };
+  }, []);
 
-  const applyGeneratedFiles = (generated: { path: string; content: string; metadata?: FileItem['metadata'] }[]) => {
+  const applyGeneratedFiles = useCallback((generated: { path: string; content: string; metadata?: FileItem['metadata'] }[]) => {
     const recycleEntries: Array<{ name: string; content: string; metadata?: FileItem['metadata'] }> = [];
     const normalEntries: Array<{ path: string; content: string; metadata?: FileItem['metadata'] }> = [];
 
@@ -513,7 +526,7 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
         isDeleted: true,
       })));
     }
-  };
+  }, []);
 
   return (
     <FileSystemContext.Provider value={{
@@ -529,6 +542,7 @@ export function FileSystemProvider({ children }: { children: ReactNode }) {
       permanentlyDelete,
       applyGeneratedFiles,
       corruptHint,
+      updateFileContent,
     }}>
       {children}
     </FileSystemContext.Provider>

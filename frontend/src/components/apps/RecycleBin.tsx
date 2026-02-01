@@ -21,7 +21,7 @@ export function RecycleBin({ windowId, props }: RecycleBinProps) {
         y: 100,
         width: 800,
         height: 500,
-        props: { content: file.content, fileName: file.name, readOnly: true },
+        props: { content: file.content, fileName: file.name, filePath: file.path, readOnly: true },
       });
       return;
     }
@@ -36,7 +36,7 @@ export function RecycleBin({ windowId, props }: RecycleBinProps) {
       y: 100,
       width: 600,
       height: 400,
-      props: { content: file.content, fileName: file.name, readOnly: true },
+      props: { content: file.content, fileName: file.name, filePath: file.path, readOnly: true },
     });
   };
   const handleRestore = () => {

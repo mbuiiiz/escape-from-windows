@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useFileSystem, FileItem } from '@/contexts/FileSystemContext';
 import { useWindows } from '@/contexts/WindowContext';
 import { useSystem } from '@/contexts/SystemContext';
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, ChevronUp, Search, Folder } from 'lucide-react';
 interface MyComputerProps {
   windowId: string;
@@ -14,6 +15,7 @@ export function MyComputer({ windowId, props }: MyComputerProps) {
   const { getFilesByPath, getFileById, usbUnlocked, antivirusEnabled, corruptHint } = useFileSystem();
   const { openWindow } = useWindows();
   const { showPopup } = useSystem();
+  const navigate = useNavigate();
   const [currentPath, setCurrentPath] = useState((props?.path as string) || '/my-computer');
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const files = getFilesByPath(currentPath);
@@ -29,6 +31,10 @@ export function MyComputer({ windowId, props }: MyComputerProps) {
     setSelectedFile(null);
   };
   const handleFileDoubleClick = (file: FileItem) => {
+    if (file.name === 'unlock.exe' && file.path.startsWith('/my-computer/e') && usbUnlocked) {
+      navigate('/ending1');
+      return;
+    }
     if (isVirusFile(file.name)) {
       if (antivirusEnabled) {
         showPopup({
@@ -78,7 +84,7 @@ export function MyComputer({ windowId, props }: MyComputerProps) {
           y: 100,
           width: 800,
           height: 500,
-          props: { content: file.content, fileName: file.name },
+          props: { content: file.content, fileName: file.name, filePath: file.path },
         });
       } else if (file.name.endsWith('.txt') || file.name.endsWith('.doc')) {
         openWindow({
@@ -90,7 +96,7 @@ export function MyComputer({ windowId, props }: MyComputerProps) {
           y: 100,
           width: 600,
           height: 400,
-          props: { content: file.content, fileName: file.name },
+          props: { content: file.content, fileName: file.name, filePath: file.path },
         });
       } else if (file.name.endsWith('.sh')) {
         openWindow({
@@ -102,7 +108,7 @@ export function MyComputer({ windowId, props }: MyComputerProps) {
           y: 100,
           width: 800,
           height: 500,
-          props: { content: file.content, fileName: file.name },
+          props: { content: file.content, fileName: file.name, filePath: file.path },
         });
       }
     }
