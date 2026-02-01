@@ -44,7 +44,6 @@ const rightMenuItems = [
     { name: "Set Program Access", icon: allProgramsIcon },
     { type: "separator" },
     { name: "Help and Support", icon: folderIcon },
-    { name: "Search", icon: folderIcon },
 ];
 export function StartMenu() {
     const { openWindow } = useWindows();
