@@ -14,16 +14,16 @@ const Index = () => {
       <WindowProvider>
         <FileSystemProvider>
           <div className="xp-os fixed inset-0 flex flex-col overflow-hidden select-none">
-            {/* Desktop Area */}
-            <Desktop />
-            
-            {/* Windows */}
-            <WindowManager />
-            
-            {/* Taskbar */}
+            {/* Desktop takes all remaining space */}
+            <div className="flex-1 overflow-hidden relative">
+              <Desktop />
+              <WindowManager />  {/* windows float over desktop */}
+            </div>
+
+            {/* Taskbar stays at bottom, fixed height */}
             <Taskbar />
-            
-            {/* System Popups */}
+
+            {/* Popups can overlay everything */}
             <SystemPopup />
           </div>
         </FileSystemProvider>
