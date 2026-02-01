@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
-=======
-/*import React, { useState, useEffect } from "react";
->>>>>>> 5d4bab2aa1c0948e70b6d828dc9034bade0c41d7
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./HomePage.css";
 import Instructions from "./Instructions";
@@ -11,10 +7,7 @@ import explorer from "../assets/explorer.png";
 import close from "../assets/close.png";
 import VideoPlayerDesktopIcon from "./VideoPlayerDesktopIcon";
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 5d4bab2aa1c0948e70b6d828dc9034bade0c41d7
 const HomePage: React.FC = () => {
   const [step, setStep] = useState<'home' | 'video' | 'instructions'>('home');
   const [shrinkWindow, setShrinkWindow] = useState(false);
@@ -142,7 +135,4 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
-<<<<<<< HEAD
-=======
-*/
->>>>>>> 5d4bab2aa1c0948e70b6d828dc9034bade0c41d7
+
