@@ -97,6 +97,7 @@ export function InternetExplorer({ windowId, props }: InternetExplorerProps) {
 
   const handleNewGame = async () => {
     localStorage.removeItem('xpgame.sessionId');
+    setHasGame(false);
     await handleStart();
   };
 

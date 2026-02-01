@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSystem } from '@/contexts/SystemContext';
 import { useFileSystem } from '@/contexts/FileSystemContext';
 
@@ -11,6 +11,7 @@ interface Tab {
   name: string;
   content: string;
   language: string;
+  path?: string;
 }
 const defaultTabs: Tab[] = [
   {
@@ -62,32 +63,35 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
   const fileName = props?.fileName as string;
   const filePath = props?.filePath as string | undefined;
   const readOnly = (props?.readOnly as boolean) || false;
-  const [tabs, setTabs] = useState<Tab[]>(() => {
-    const stored = sessionStorage.getItem(STORAGE_KEY);
-    if (stored) {
+  const initialTabs = useMemo<Tab[]>(() => {
+    const incoming = initialContent && fileName ? {
+      id: filePath || `tab-${fileName}`,
+      name: fileName,
+      content: initialContent,
+      language: fileName.endsWith('.js') ? 'javascript' : fileName.endsWith('.sh') ? 'bash' : 'text',
+      path: filePath,
+    } : null;
+
+    let stored: Tab[] | null = null;
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (raw) {
       try {
-        const parsed = JSON.parse(stored) as Tab[];
-        return parsed;
-      } catch(e) {
-        // Ignore parse errors
+        stored = JSON.parse(raw) as Tab[];
+      } catch (e) {
         console.error('Failed to parse saved tabs:', e);
       }
     }
-
-    if (initialContent && fileName) {
-      return [
-        {
-          id: 'custom',
-          name: fileName,
-          content: initialContent,
-          language: fileName.endsWith('.sh') ? 'bash' : 'text',
-        },
-        ...defaultTabs,
-      ];
+    if (incoming && stored?.length) {
+      const filtered = stored.filter((t) => t.name !== incoming.name);
+      return [incoming, ...filtered];
     }
+    if (incoming) return [incoming, ...(stored ?? defaultTabs)];
+    if (stored?.length) return stored;
     return defaultTabs;
-  });
-  const [activeTab, setActiveTab] = useState(tabs[0].id);
+  }, [fileName, filePath, initialContent]);
+
+  const [tabs, setTabs] = useState<Tab[]>(initialTabs);
+  const [activeTab, setActiveTab] = useState(() => initialTabs[0]?.id ?? 'decrypt');
   const activeTabData = tabs.find((t) => t.id === activeTab) || tabs[0];
   const [showFileMenu, setShowFileMenu] = useState(false);
   const { showPopup } = useSystem();
@@ -101,7 +105,7 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
   
   const handleContentChange = (newContent: string) => {
     setTabs((prev) =>
-      prev.map((t) => (t.id === activeTab ? { ...t, content: newContent } : t))
+      prev.map((t) => (t.id === activeTab ? { ...t, content: newContent } : t)),
     );
   };
   const getLineNumbers = (content: string) => {
@@ -148,23 +152,25 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
           className="cursor-pointer hover:underline"
           onClick={() => {
             const ts = new Date().toLocaleTimeString();
-            const content = activeTabData.content.toLowerCase();
-            const required = ['inspect', 'remove', 'decode', 'rebuild', 'reverse', 'assemble'];
-            const matchesOrder = () => {
-              let idx = 0;
-              for (const token of required) {
-                const next = content.indexOf(token, idx);
+            const contentRaw = activeTabData.content || '';
+            const contentLower = contentRaw.toLowerCase();
+            const currentPath = activeTabData.path || filePath;
+            const hasCorrectOrder = () => {
+              const tokens = ['01_clean', '02_decode', '03_extract', '04_build_key'];
+              let pos = -1;
+              for (const token of tokens) {
+                const next = contentLower.indexOf(token, pos + 1);
                 if (next === -1) return false;
-                idx = next + token.length;
+                pos = next;
               }
               return true;
             };
 
-            const isUsbCracker =
-              (filePath && filePath.includes('/Projects/usb_cracker/decrypt.js')) ||
-              activeTabData.name.toLowerCase() === 'decrypt.js';
+            const isUsbCrackerFile =
+              (currentPath && currentPath.includes('/Projects/usb_cracker/')) ||
+              ['run.js', 'decrypt.js'].includes(activeTabData.name.toLowerCase());
 
-            if (isUsbCracker && matchesOrder()) {
+            if (isUsbCrackerFile && hasCorrectOrder()) {
               setUsbUnlocked(true);
               setRunOutput(
                 `> Running ${activeTabData.name}\nExecuted at ${ts}\n\nUSB unlocked via cracking.`
@@ -201,8 +207,9 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
             className="px-3 py-1 hover:bg-blue-100 cursor-pointer"
             onClick={() => {
               setShowFileMenu(false);
-              if (!readOnly && filePath) {
-                updateFileContent(filePath, activeTabData.content);
+              const targetPath = activeTabData.path || filePath;
+              if (!readOnly && targetPath) {
+                updateFileContent(targetPath, activeTabData.content);
               }
               showPopup({
                 id: `save-${Date.now()}`,
@@ -219,8 +226,9 @@ export function NotepadPlusPlus({ windowId, props }: NotepadPlusPlusProps) {
             className="px-3 py-1 hover:bg-blue-100 cursor-pointer"
             onClick={() => {
               setShowFileMenu(false);
-              if (!readOnly && filePath) {
-                updateFileContent(filePath, activeTabData.content);
+              const targetPath = activeTabData.path || filePath;
+              if (!readOnly && targetPath) {
+                updateFileContent(targetPath, activeTabData.content);
               }
               showPopup({
                 id: `saveas-${Date.now()}`,

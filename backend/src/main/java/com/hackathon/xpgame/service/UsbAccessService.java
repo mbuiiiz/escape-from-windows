@@ -13,7 +13,7 @@ public class UsbAccessService {
 
     private static final int MAX_ATTEMPTS = 20;
     private static final int LOCKOUT_STREAK = 5;
-    private static final int LOCKOUT_MINUTES = 2;
+    private static final int LOCKOUT_MINUTES = 1;
 
     @Autowired
     private SessionService sessionService;
@@ -74,7 +74,8 @@ public class UsbAccessService {
             message = "Incorrect password.";
         }
 
-        return new UsbAccessResponse(false, blocked, locked, attemptsLeft(session), session.getUsbLockoutUntil(), message);
+        return new UsbAccessResponse(false, blocked, locked, attemptsLeft(session), session.getUsbLockoutUntil(),
+                message);
     }
 
     private int attemptsLeft(PlayerSession session) {
