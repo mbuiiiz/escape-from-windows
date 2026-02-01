@@ -48,7 +48,7 @@ class GameInstance:
             "────────────────────────\n"
             "STEP 2 — PASSWORD (INTERNAL)\n"
             "────────────────────────\n"
-            "Internal 5-block structure: block1_block2_block3_block4_block5\n"
+            "Internal 4-block structure: block1_block2_block3_block4\n"
             "Do not reveal the blocks explicitly.\n"
             "\n"
             "────────────────────────\n"
@@ -81,7 +81,7 @@ def generate_run_text(seed: str | None = None) -> str:
     blocks = _derive_blocks_for_run(rng, owner)
     block1, block2, block3, block4, block5 = blocks
 
-    password = f"{block1}_{block2}_{block3}_{block4}_{block5}"
+    password = f"{block1}_{block2}_{block3}_{block5}"
 
     vibe = _pick(
         rng,
@@ -120,7 +120,8 @@ def generate_run_payload(seed: str | None = None) -> Dict[str, Any]:
 
     owner = _generate_owner_for_run(rng)
     blocks = _derive_blocks_for_run(rng, owner)
-    password = "_".join(blocks)
+    block1, block2, block3, block4, block5 = blocks
+    password = f"{block1}_{block2}_{block3}_{block5}"
 
     files = _generate_run_files(rng, owner, blocks)
     file_entries = [
@@ -302,8 +303,8 @@ def _derive_blocks_for_run(rng: random.Random, owner: OwnerProfile) -> Tuple[str
     # block4: significant year (digits). Never printed in any in-game text.
     block4 = str(owner.significant_year)
 
-    # block5: ritual symbol (characters). Never printed in any in-game text.
-    block5 = owner.ritual_symbol
+    # block5: ritual symbol reduced to a single character. Never printed in any in-game text.
+    block5 = owner.ritual_symbol[:1]
 
     return (block1, block2, block3, block4, block5)
 
@@ -345,15 +346,16 @@ def _generate_run_files(
 
     # Symbol hint (never print the literal symbol).
     symbol_hint = {
-        "!!": "the symbol above the one key, doubled",
-        "??": "the punctuation you use when you don’t know, doubled",
-        "##": "the fence-like mark people call a ‘hash’, doubled",
-        "++": "the thing programmers say when they mean ‘add one’, doubled",
-        "--": "a small dash repeated once more than it needs to be",
-        "~~": "a wavy line repeated like a sigh",
-        "::": "two dots stacked, twice",
-        "<>": "two angle shapes facing each other, twice",
-    }.get(block5, "a small mark repeated twice")
+        "!": "the symbol above the one key",
+        "?": "the punctuation you use when you don’t know",
+        "#": "the fence-like mark people call a ‘hash’",
+        "+": "the thing programmers say when they mean ‘add one’",
+        "-": "a small dash",
+        "~": "a wavy line like a sigh",
+        ":": "two dots stacked",
+        "<": "a left angle bracket",
+        ">": "a right angle bracket",
+    }.get(block5, "a small mark")
 
     # Exactly ONE misleading identity hint: not the real alias.
     handles = ["Rin", "Lio", "Sam", "Nox", "Rue", "Kit", "Jae", "Sol", "Bee", "Ash"]
@@ -1275,10 +1277,7 @@ def generate_consistency_notes(blocks: Tuple[str, str, str, str, str]) -> str:
         "(the recurring place).\n"
         "- block3 is supported by Recycle Bin/routine_note.txt (no gaps / fused habit) and old_scripts/notes_old.txt "
         "(routine action + count).\n"
-        "- block4 is supported by Recycle Bin/year_split_note.txt (tail in words) and old_scripts/notes_old.txt "
-        "(front in words; never written together).\n"
-        "- block5 is supported by usb_decrypt/README.md (ending is repeated, not drawn) and old_scripts/notes_old.txt "
-        "(repeated twice).\n"
+        "- block4 is supported by usb_decrypt/README.md (ending mark) and old_scripts/notes_old.txt (mark described indirectly).\n"
     )
 
 
