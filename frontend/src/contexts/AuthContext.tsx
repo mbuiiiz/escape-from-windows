@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';  
 
 interface AuthContextType {
   user: User | null;
@@ -20,7 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(isSupabaseConfigured);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured || !supabase) {  // Add !supabase check
       setLoading(false);
       return;
     }
@@ -45,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured || !supabase) {  // Add !supabase check
       return { error: { message: 'Supabase not configured' } as AuthError };
     }
     const { error } = await supabase.auth.signInWithPassword({
@@ -56,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, username?: string) => {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured || !supabase) {  // Add !supabase check
       return { error: { message: 'Supabase not configured' } as AuthError };
     }
     const { error } = await supabase.auth.signUp({
@@ -72,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    if (!isSupabaseConfigured) return;
+    if (!isSupabaseConfigured || !supabase) return;  // Add !supabase check
     await supabase.auth.signOut();
   };
 
