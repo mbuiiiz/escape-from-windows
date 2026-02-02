@@ -88,7 +88,7 @@ npm install
 cd ../backend
 # For Java: ./mvnw install
 # For Python: pip install -r requirements.txt
-#Docker install then run docker-compose up --build for successful run
+#Docker install then run docker-compose up --build from root file for successful run
 
 
 # Set up environment variables
@@ -112,5 +112,4 @@ cd ../backend
 - Inspiration sources or similar projects
 
 **Made with ❤️ at xhacks**
-```
 
