@@ -1,6 +1,6 @@
 # Escape from Windows
 
-*Built at xhacks 2026*
+**xhacks Winner 2026**
 
 ## Overview
 
