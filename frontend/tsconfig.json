@@ -16,7 +16,6 @@
     "jsx": "react-jsx",
 
     // Your alias – make sure paths start with "./"
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
