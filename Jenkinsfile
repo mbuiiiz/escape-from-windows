@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'maven3'
+    }
+
     options {
         timestamps()
         timeout(time: 20, unit: 'MINUTES')
@@ -10,8 +14,7 @@ pipeline {
         stage('Backend Test') {
             steps {
                 dir('backend') {
-                    sh 'chmod +x mvnw'
-                    sh './mvnw -B -ntp test'
+                    sh 'mvn -B -ntp test'
                 }
             }
             post {
