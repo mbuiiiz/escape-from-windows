@@ -23,6 +23,10 @@ pipeline {
                     post {
                         always {
                             junit testResults: 'backend/target/surefire-reports/*.xml', allowEmptyResults: true
+                            recordCoverage(
+                                tools: [[parser: 'JACOCO', pattern: 'backend/target/site/jacoco/jacoco.xml']],
+                                sourceCodeRetention: 'EVERY_BUILD'
+                            )
                         }
                     }
                 }
