@@ -17,7 +17,7 @@ pipeline {
                 stage('Backend Test') {
                     steps {
                         dir('backend') {
-                            sh 'mvn -B -ntp test'
+                            sh 'mvn -B -ntp package'
                         }
                     }
                     post {
@@ -28,6 +28,9 @@ pipeline {
                                 sourceCodeRetention: 'EVERY_BUILD',
                                 sourceDirectories: [[path: 'backend/src/main/java']]
                             )
+                        }
+                        success {
+                            archiveArtifacts artifacts: 'backend/target/*.jar', fingerprint: true, allowEmptyArchive: true
                         }
                     }
                 }
@@ -40,6 +43,11 @@ pipeline {
                             sh 'npm ci'
                             sh 'npm run lint || echo "Lint reported issues (non-blocking)"'
                             sh 'npm run build'
+                        }
+                    }
+                    post {
+                        success {
+                            archiveArtifacts artifacts: 'frontend/dist/**', fingerprint: true
                         }
                     }
                 }
