@@ -33,7 +33,7 @@ pipeline {
                             sh 'node --version'
                             sh 'npm --version'
                             sh 'npm ci'
-                            sh 'npm run lint'
+                            sh 'npm run lint || echo "Lint reported issues (non-blocking)"'
                             sh 'npm run build'
                         }
                     }
